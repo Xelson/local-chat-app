@@ -41,6 +41,7 @@ export const textField = defineSlotRecipe({
 	},
 	variants: {
 		variant: {
+			unstyled: {},
 			solid: {
 				root: {
 					backgroundColor: 'gray.2',
