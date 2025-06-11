@@ -1,4 +1,4 @@
-import { defineRecipe } from '@pandacss/dev'
+import { defineRecipe } from '@pandacss/dev';
 
 export const button = defineRecipe({
 	className: 'button',
@@ -150,35 +150,35 @@ export const button = defineRecipe({
 			},
 		},
 		size: {
-			xs: {
+			'xs': {
 				h: '8',
 				minW: '8',
 				textStyle: 'xs',
 				px: '3',
 				gap: '2',
 			},
-			sm: {
+			'sm': {
 				h: '9',
 				minW: '9',
 				textStyle: 'sm',
 				px: '3.5',
 				gap: '2',
 			},
-			md: {
+			'md': {
 				h: '10',
 				minW: '10',
 				textStyle: 'sm',
 				px: '4',
 				gap: '2',
 			},
-			lg: {
+			'lg': {
 				h: '11',
 				minW: '11',
 				textStyle: 'md',
 				px: '4.5',
 				gap: '2',
 			},
-			xl: {
+			'xl': {
 				h: '12',
 				minW: '12',
 				textStyle: 'md',
@@ -194,4 +194,4 @@ export const button = defineRecipe({
 			},
 		},
 	},
-})
+});

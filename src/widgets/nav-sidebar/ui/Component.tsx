@@ -1,9 +1,9 @@
-import { reatomComponent } from "@reatom/react";
-import { styled, VStack } from "styled-system/jsx";
-import { sidebarRoute } from "../model/route";
-import { Button, Heading, Text } from "~/shared/ui/kit/components";
-import { PlusIcon } from "lucide-react";
-import logoImage from './logo.webp'
+import { reatomComponent } from '@reatom/react';
+import { styled, VStack } from 'styled-system/jsx';
+import { sidebarRoute } from '../model/route';
+import { Button, Heading, Text } from '~/shared/ui/kit/components';
+import { PlusIcon } from 'lucide-react';
+import logoImage from './logo.webp';
 
 export const Component = reatomComponent(() => {
 	const loaderData = sidebarRoute.loader.data();
@@ -47,5 +47,5 @@ export const Component = reatomComponent(() => {
 				loaderData.map(chat => <Text key={chat}>chat</Text>)
 			)}
 		</VStack>
-	)
-})
+	);
+});

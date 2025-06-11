@@ -1,1 +1,1 @@
-export { ChatsList } from '~/entities/chat'
+export { ChatsList } from '~/entities/chat';

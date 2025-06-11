@@ -1,8 +1,8 @@
-import { Center, Divider, HStack, VStack } from "styled-system/jsx";
-import { IconButton, TextField } from "~/shared/ui/kit/components";
-import { Sidebar } from "~/widgets/nav-sidebar";
-import { ModelSelect } from "./ModelSelect";
-import { ArrowUpIcon, PaperclipIcon } from "lucide-react";
+import { Center, Divider, HStack, VStack } from 'styled-system/jsx';
+import { IconButton, TextField } from '~/shared/ui/kit/components';
+import { Sidebar } from '~/widgets/nav-sidebar';
+import { ModelSelect } from './ModelSelect';
+import { ArrowUpIcon, PaperclipIcon } from 'lucide-react';
 
 export function Component() {
 	return (
@@ -25,12 +25,12 @@ export function Component() {
 				</VStack>
 			</Center>
 		</HStack>
-	)
+	);
 }
 
 function InputPanel() {
 	const stickToBottom = false;
-	
+
 	return (
 		<VStack
 			position='absolute'
@@ -77,5 +77,5 @@ function InputPanel() {
 				</IconButton>
 			</HStack>
 		</VStack>
-	)
+	);
 }

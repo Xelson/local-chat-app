@@ -1,5 +1,5 @@
-import { selectAnatomy } from '@ark-ui/react'
-import { defineSlotRecipe } from '@pandacss/dev'
+import { selectAnatomy } from '@ark-ui/react';
+import { defineSlotRecipe } from '@pandacss/dev';
 
 export const select = defineSlotRecipe({
 	className: 'select',
@@ -74,26 +74,26 @@ export const select = defineSlotRecipe({
 			fontWeight: 'medium',
 		},
 		trigger: {
-			appearance: 'none',
-			alignItems: 'center',
-			borderColor: 'border.default',
-			borderRadius: 'l2',
-			cursor: 'pointer',
-			color: 'fg.default',
-			display: 'inline-flex',
-			justifyContent: 'space-between',
-			outline: 0,
-			position: 'relative',
-			transitionDuration: 'normal',
-			transitionProperty: 'background, box-shadow, border-color',
-			transitionTimingFunction: 'default',
-			width: 'full',
-			_placeholderShown: {
+			'appearance': 'none',
+			'alignItems': 'center',
+			'borderColor': 'border.default',
+			'borderRadius': 'l2',
+			'cursor': 'pointer',
+			'color': 'fg.default',
+			'display': 'inline-flex',
+			'justifyContent': 'space-between',
+			'outline': 0,
+			'position': 'relative',
+			'transitionDuration': 'normal',
+			'transitionProperty': 'background, box-shadow, border-color',
+			'transitionTimingFunction': 'default',
+			'width': 'full',
+			'_placeholderShown': {
 				color: 'fg.subtle',
 			},
-			_disabled: {
-				color: 'fg.disabled',
-				cursor: 'not-allowed',
+			'_disabled': {
+				'color': 'fg.disabled',
+				'cursor': 'not-allowed',
 				'& :where(svg)': {
 					color: 'fg.disabled',
 				},
@@ -160,11 +160,11 @@ export const select = defineSlotRecipe({
 				},
 				label: { textStyle: 'sm' },
 				trigger: {
-					px: '2.5',
-					h: '9',
-					minW: '9',
-					fontSize: 'sm',
-					gap: '2',
+					'px': '2.5',
+					'h': '9',
+					'minW': '9',
+					'fontSize': 'sm',
+					'gap': '2',
 					'& :where(svg)': {
 						width: '4',
 						height: '4',
@@ -186,11 +186,11 @@ export const select = defineSlotRecipe({
 				},
 				label: { textStyle: 'sm' },
 				trigger: {
-					px: '3',
-					h: '10',
-					minW: '10',
-					fontSize: 'md',
-					gap: '2',
+					'px': '3',
+					'h': '10',
+					'minW': '10',
+					'fontSize': 'md',
+					'gap': '2',
 					'& :where(svg)': {
 						width: '4',
 						height: '4',
@@ -212,11 +212,11 @@ export const select = defineSlotRecipe({
 				},
 				label: { textStyle: 'sm' },
 				trigger: {
-					px: '3.5',
-					h: '11',
-					minW: '11',
-					fontSize: 'md',
-					gap: '2',
+					'px': '3.5',
+					'h': '11',
+					'minW': '11',
+					'fontSize': 'md',
+					'gap': '2',
 					'& :where(svg)': {
 						width: '5',
 						height: '5',
@@ -225,4 +225,4 @@ export const select = defineSlotRecipe({
 			},
 		},
 	},
-})
+});

@@ -81,7 +81,7 @@ export const textField = defineSlotRecipe({
 					paddingX: '0.75rem',
 					paddingY: '0.25rem',
 					gap: '0.75rem',
-				},	
+				},
 				element: {
 					_icon: {
 						width: '1.25rem',

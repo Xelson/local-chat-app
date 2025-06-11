@@ -1,5 +1,5 @@
-import { comboboxAnatomy } from '@ark-ui/react'
-import { defineSlotRecipe } from '@pandacss/dev'
+import { comboboxAnatomy } from '@ark-ui/react';
+import { defineSlotRecipe } from '@pandacss/dev';
 
 export const combobox = defineSlotRecipe({
 	className: 'combobox',
@@ -153,4 +153,4 @@ export const combobox = defineSlotRecipe({
 			},
 		},
 	},
-})
+});

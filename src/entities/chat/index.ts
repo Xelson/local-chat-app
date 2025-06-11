@@ -1,1 +1,1 @@
-export { Chat, ChatBranch, ChatMessage, ChatsList } from './model/schema'
+export { Chat, ChatBranch, ChatMessage, ChatsList } from './model/schema';

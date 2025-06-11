@@ -1,4 +1,4 @@
-export { 
-	Button, type ButtonProps, 
-	IconButton, type IconButtonProps 
-} from './parts'
+export {
+	Button, type ButtonProps,
+	IconButton, type IconButtonProps,
+} from './parts';

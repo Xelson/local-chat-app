@@ -1,4 +1,4 @@
-import { defineRecipe } from '@pandacss/dev'
+import { defineRecipe } from '@pandacss/dev';
 
 export const spinner = defineRecipe({
 	className: 'spinner',
@@ -25,4 +25,4 @@ export const spinner = defineRecipe({
 			xl: { '--size': 'sizes.12' },
 		},
 	},
-})
+});
