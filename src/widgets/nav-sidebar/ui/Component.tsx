@@ -1,9 +1,9 @@
 import { reatomComponent } from '@reatom/react';
-import { styled, VStack } from 'styled-system/jsx';
+import { VStack } from 'styled-system/jsx';
 import { sidebarRoute } from '../model/route';
 import { Button, Heading, Text } from '~/shared/ui/kit/components';
 import { PlusIcon } from 'lucide-react';
-import logoImage from './logo.webp';
+import { BrandLogo } from '~/entities/branding';
 
 export const Component = reatomComponent(() => {
 	const loaderData = sidebarRoute.loader.data();
@@ -23,13 +23,7 @@ export const Component = reatomComponent(() => {
 			flexShrink='0'
 		>
 			<Heading size='xl'>
-				<styled.img
-					src={logoImage}
-					size='2rem'
-					rounded='full'
-					userSelect='none'
-					draggable='false'
-				/>
+				<BrandLogo size='2rem' />
 			</Heading>
 
 			<Button

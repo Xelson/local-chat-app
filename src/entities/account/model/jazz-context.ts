@@ -7,7 +7,7 @@ const SYNC_URL = z.templateLiteral([z.enum(['ws://', 'wss://']), z.string()]).pa
 	{ error: () => 'VITE_JAZZ_SYNC_URL is not defined or is not correct websocket url' },
 );
 
-export const jazzContext = createVanillaJazzApp({
+export const jazzContext = await createVanillaJazzApp({
 	sync: { peer: SYNC_URL },
 	AccountSchema: AppAccount,
 });
