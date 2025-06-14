@@ -4,22 +4,24 @@ export const ChatMessage = co.map({
 	role: z.literal(['system', 'developer', 'user', 'assistant', 'tool']),
 	content: co.plainText(),
 	streaming: z.boolean(),
-	get prev() { return ChatMessage.nullable(); },
+	get prev() { return ChatMessage.optional(); },
 });
 
 export const Chat = co.map({
 	name: z.string(),
 	pinned: z.boolean(),
 	lastMessage: ChatMessage,
-	get branches() { return co.list(ChatBranch); },
+	get branches() { return ChatBranchesList; },
 });
 
 export const ChatBranch = co.map({
 	name: z.string(),
 	lastMessage: ChatMessage,
 	get branches(): CoListSchema<typeof ChatBranch> {
-		return co.list(ChatBranch);
+		return ChatBranchesList;
 	},
 });
+
+export const ChatBranchesList = co.list(ChatBranch);
 
 export const ChatsList = co.list(Chat);

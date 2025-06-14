@@ -1,10 +1,16 @@
 import { route } from '@reatom/core';
 import { z } from 'zod/v4';
+import { jazzContext } from '~/entities/account';
+import { reatomChatsList } from '~/entities/chat';
+
+const { me } = jazzContext;
 
 export const sidebarRoute = route({
 	path: '',
 	async loader() {
-		return ['Chat 1', 'Chat 2', 'Chat 3'];
+		return {
+			chatsList: reatomChatsList(me.root.chats.id, { loadAs: me, name: 'chats' }),
+		};
 	},
 });
 

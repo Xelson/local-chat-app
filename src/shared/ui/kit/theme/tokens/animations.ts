@@ -31,6 +31,9 @@ export const animations = defineTokens.animations({
 	'fade-in': {
 		value: 'fade-in 400ms {easings.emphasized-in}',
 	},
+	'fade-out': {
+		value: 'fade-out 400ms {easings.emphasized-in}',
+	},
 	'collapse-in': {
 		value: 'collapse-in 250ms {easings.emphasized-in}',
 	},

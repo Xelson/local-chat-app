@@ -4,3 +4,4 @@ export * from './spinner';
 export * from './text-field';
 export * from './combobox';
 export * from './select';
+export * from './skeleton';

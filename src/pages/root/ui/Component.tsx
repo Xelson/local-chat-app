@@ -1,10 +1,11 @@
 import { Box, HStack, styled, VStack } from 'styled-system/jsx';
-import type { PropsWithChildren } from 'react';
+import { type PropsWithChildren } from 'react';
 import { Presence } from '@ark-ui/react';
 import { reatomComponent } from '@reatom/react';
 import { authenticated } from '~/entities/account';
 import { BrandLogo } from '~/entities/branding';
 import { Button, Heading, Text } from '~/shared/ui/kit/components';
+import { reatomBoolean } from '@reatom/core';
 
 export function Component({ children }: PropsWithChildren) {
 	return (
@@ -23,10 +24,12 @@ export function Component({ children }: PropsWithChildren) {
 
 const StyledPresence = styled(Presence);
 
+const closed = reatomBoolean(false, `authOverlayClosed`);
+
 const AuthOverlay = reatomComponent(() => {
 	return (
 		<StyledPresence
-			present={!authenticated()}
+			present={!closed() && !authenticated()}
 			display='flex'
 			alignItems='center'
 			justifyContent='center'
@@ -34,9 +37,8 @@ const AuthOverlay = reatomComponent(() => {
 			gap='6'
 			position='fixed'
 			inset='0'
-			backdropFilter='blur(0.5rem)'
+			backdropFilter='blur(1rem)'
 			backgroundColor='white/5'
-
 			_closed={{ animation: 'fade-out' }}
 		>
 			<BrandLogo size='10rem' />
@@ -60,6 +62,7 @@ const AuthOverlay = reatomComponent(() => {
 					size='lg'
 					color='gray.10'
 					fontWeight='400'
+					onClick={() => closed.setTrue()}
 				>
 					Continue anonymously
 				</Button>

@@ -1,12 +1,14 @@
 import { reatomComponent } from '@reatom/react';
 import { VStack } from 'styled-system/jsx';
 import { sidebarRoute } from '../model/route';
-import { Button, Heading, Text } from '~/shared/ui/kit/components';
+import { Button, Heading, Skeleton } from '~/shared/ui/kit/components';
 import { PlusIcon } from 'lucide-react';
 import { BrandLogo } from '~/entities/branding';
+import { type ChatModel } from '~/entities/chat';
 
 export const Component = reatomComponent(() => {
 	const loaderData = sidebarRoute.loader.data();
+	const chatItems = loaderData?.chatsList.items();
 
 	return (
 		<VStack
@@ -35,11 +37,36 @@ export const Component = reatomComponent(() => {
 				<PlusIcon /> New chat
 			</Button>
 
-			{!loaderData ? (
-				'loading...'
-			) : (
-				loaderData.map(chat => <Text key={chat}>chat</Text>)
-			)}
+			<VStack
+				width='full'
+				alignItems='start'
+				maskImage={!chatItems ? 'linear-gradient(to bottom, #000 20%, #0000 70%)' : undefined}
+			>
+				{chatItems?.map((model, index) => (
+					<ChatItem key={model?.id ?? index} model={model} />
+				)) ?? (
+					Array.from({ length: 4 }).map((_, index) => (
+						<ChatItem key={index} model={undefined} />
+					))
+				)}
+			</VStack>
 		</VStack>
+	);
+});
+
+const ChatItem = reatomComponent(({ model }: { model: ChatModel | null | undefined }) => {
+	if (model === null)
+		return null;
+
+	return (
+		<Skeleton loading={!model} asChild>
+			<Button
+				variant='ghost'
+				width='full'
+				justifyContent='start'
+			>
+				{model?.name()}
+			</Button>
+		</Skeleton>
 	);
 });

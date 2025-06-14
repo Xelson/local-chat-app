@@ -5,12 +5,14 @@ import { spinner } from '../components/spinner/recipe';
 import { textField } from '../components/text-field/recipe';
 import { combobox } from '../components/combobox/recipe';
 import { select } from '../components/select/recipe';
+import { skeleton } from '../components/skeleton/recipe';
 
 export const recipes = {
 	text,
 	kbd,
 	button,
 	spinner,
+	skeleton,
 };
 
 export const slotRecipes = {
