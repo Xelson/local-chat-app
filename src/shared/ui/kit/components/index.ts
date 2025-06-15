@@ -5,3 +5,7 @@ export * from './text-field';
 export * from './combobox';
 export * from './select';
 export * from './skeleton';
+export * from './file-upload';
+export * from './progress';
+export * from './badge';
+export * from './tooltip';

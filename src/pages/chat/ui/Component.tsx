@@ -1,16 +1,12 @@
-import { Center, Divider, HStack, VStack } from 'styled-system/jsx';
-import { IconButton, Spinner, TextField } from '~/shared/ui/kit/components';
-import { Sidebar, sidebarChatRoute } from '~/widgets/nav-sidebar';
-import { ModelSelect } from './ModelSelect';
-import { ArrowUpIcon, PaperclipIcon } from 'lucide-react';
-import { addCallHook, top, wrap } from '@reatom/core';
+import { Center, HStack, VStack } from 'styled-system/jsx';
+import { Sidebar } from '~/widgets/nav-sidebar';
+import { top } from '@reatom/core';
 import { editorFormVariable, reatomEditorForm } from '../model/editor-form';
-import { reatomComponent, reatomContext, reatomFactoryComponent } from '@reatom/react';
+import { reatomContext, reatomFactoryComponent } from '@reatom/react';
 import { Group } from 'jazz-tools';
-import { useFormField } from '~/shared/ui/reatom';
 import { MessagesStream } from './MessagesStream';
-import { useEffect, useState } from 'react';
 import { sidebarRoute } from '~/widgets/nav-sidebar/model/route';
+import { InputPanel } from './InputPanel';
 
 export const Component = reatomFactoryComponent(() => {
 	// Here we initialize a reactive model bound to this component's lifecycle. This callback executes only once,
@@ -55,100 +51,5 @@ export const Component = reatomFactoryComponent(() => {
 				</Center>
 			</HStack>
 		</reatomContext.Provider>
-	);
-});
-
-const InputPanel = reatomComponent(() => {
-	const model = editorFormVariable.get();
-	const stickToBottom = model.focus().dirty || sidebarChatRoute.exact();
-
-	return (
-		<VStack
-			position='absolute'
-			left='-1rem'
-			right='-1rem'
-			bottom={stickToBottom ? '0' : '50%'}
-			translate='auto'
-			translateY={stickToBottom ? '0%' : '50%'}
-			scale={stickToBottom ? '1' : '1.1'}
-			alignItems='start'
-			padding='1rem'
-			border='default'
-			borderColor='border.subtle'
-			background='white/50'
-			backdropFilter='blur(2rem)'
-			borderRadius='l3'
-			shadow='sm'
-			transition='200ms all ease'
-		>
-			<InputPanelConentInput />
-
-			<Divider maskImage='radial-gradient(#000 20%, #0000 70%)' />
-
-			<HStack width='full' justifyContent='space-between'>
-				<HStack gap='0.5rem'>
-					<ModelSelect />
-					<IconButton variant='subtle' size='sm'>
-						<PaperclipIcon />
-					</IconButton>
-				</HStack>
-
-				<InputPanelSubmitButton />
-			</HStack>
-		</VStack>
-	);
-});
-
-const InputPanelConentInput = reatomComponent(() => {
-	const model = editorFormVariable.get();
-	const { value, setValue, getFieldProps } = useFormField(model.fields.content);
-	const [version, setVersion] = useState(0);
-
-	useEffect(() => {
-		return addCallHook(model.fields.content.reset, () => setVersion(v => v + 1));
-	}, [model.fields.content.reset]);
-
-	return (
-		<TextField.Root
-			key={version}
-			className='group'
-			variant='unstyled'
-			padding='0'
-			width='full'
-			defaultValue={value}
-			onValueChange={setValue}
-		>
-			<TextField.Textarea
-				autoresize
-				placeholder='Type your message here...'
-				maxHeight='50vh'
-				{...getFieldProps()}
-
-				onKeyDown={(e) => {
-					if (e.key === 'Enter' && !e.shiftKey) {
-						e.preventDefault();
-						model.submit();
-					}
-				}}
-			/>
-		</TextField.Root>
-	);
-});
-
-const InputPanelSubmitButton = reatomComponent(() => {
-	const model = editorFormVariable.get();
-	const pending = !!model.submit.pending();
-	const disabled = !model.focus().dirty || pending;
-	const submit = wrap(model.submit);
-
-	return (
-		<IconButton
-			variant='subtle'
-			size='sm'
-			disabled={disabled}
-			onClick={submit}
-		>
-			{pending ? <Spinner size='sm' /> : <ArrowUpIcon />}
-		</IconButton>
 	);
 });

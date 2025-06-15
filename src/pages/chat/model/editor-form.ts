@@ -1,8 +1,24 @@
-import { assign, atom, computed, reatomForm, variable, withAsyncData, withCallHook, wrap } from '@reatom/core';
+import {
+	assign,
+	atom,
+	computed,
+	experimental_fieldArray,
+	reatomField,
+	reatomForm,
+	reatomMap,
+	variable,
+	withAsyncData,
+	withCallHook,
+	withChangeHook,
+	withComputed,
+	wrap,
+} from '@reatom/core';
+
 import type { Account, Group } from 'jazz-tools';
 import { co, CoPlainText } from 'jazz-tools';
 import { jazzContext } from '~/entities/account';
 import { Chat, ChatBranchesList, ChatMessage } from '~/entities/chat';
+import { modelsListQuery } from '~/entities/llm';
 import { invariant } from '~/shared/lib/asserts';
 import { sidebarChatRoute } from '~/widgets/nav-sidebar';
 
@@ -11,18 +27,24 @@ export type EditorFormModel = ReturnType<typeof reatomEditorForm>;
 export const reatomEditorForm = (owner: Account | Group, name: string) => {
 	const form = reatomForm({
 		content: '',
-		attachments: new Array<File>(),
+		modelId: '',
+		attachments: experimental_fieldArray((param: File, name) => reatomField(param, name)),
 	}, {
 		name,
 		validateOnChange: true,
-		onSubmit: async ({ content, attachments }) => {
+		onSubmit: async ({ modelId, content }) => {
 			const matched = sidebarChatRoute.exact();
+			const attachmentStreams = attachmentModels()
+				.map(m => m.stream.data())
+				.filter((item): item is NonNullable<typeof item> => !!item);
+
 			if (!matched) {
 				const message = ChatMessage.create({
 					content: CoPlainText.create(content, { owner }),
 					role: 'user',
 					streaming: false,
 					prev: undefined,
+					attachments: attachmentStreams,
 				});
 
 				const chat = Chat.create({
@@ -30,6 +52,7 @@ export const reatomEditorForm = (owner: Account | Group, name: string) => {
 					branches: ChatBranchesList.create([], { owner }),
 					lastMessage: message,
 					pinned: false,
+					currentModelId: modelId,
 				});
 
 				jazzContext.me.root.chats.push(chat);
@@ -51,6 +74,7 @@ export const reatomEditorForm = (owner: Account | Group, name: string) => {
 					role: 'user',
 					streaming: false,
 					prev: co.lastMessage,
+					attachments: attachmentStreams,
 				});
 
 				if (co)
@@ -65,13 +89,49 @@ export const reatomEditorForm = (owner: Account | Group, name: string) => {
 		}),
 	);
 
+	form.fields.modelId.extend(
+		withComputed((state) => {
+			if (sidebarChatRoute.exact()) {
+				const currentModelId = sidebarChatRoute.loader.data()?.chat?.currentModelId();
+				if (currentModelId)
+					return currentModelId;
+			}
+			if (!state) {
+				const availableModels = modelsListQuery.data();
+				if (availableModels?.[0])
+					return availableModels[0].id;
+			}
+
+			return state;
+		}),
+		withChangeHook((newValue) => {
+			const currentChatCo = sidebarChatRoute.loader.data()?.chat?.loaded();
+			if (currentChatCo)
+				currentChatCo.currentModelId = newValue;
+		}),
+	);
+
+	const fileModelsCache = reatomMap<File, AttachmentModel>(undefined, `${name}._fileModelsCache`);
+
+	const attachmentModels = computed(() => form.fields.attachments.array().map((model) => {
+		const file = model.value();
+		return fileModelsCache.getOrCreate(file, () => (
+			reatomAttachmentModel(file, { owner, name: `${name}.attachmentModels` })
+		));
+	}), `${name}.attachmentModels`);
+
+	const supportedInputModalities = computed(() => {
+		const modelId = form.fields.modelId.value();
+		return modelsListQuery.data()?.find(item => item.id === modelId)?.architecture.input_modalities;
+	}, `${name}.supportedInputModalities`);
+
 	return assign(form, {
-		attachmentModels: computed(() => form.fields.attachments
-			.array()
-			.map(file => reatomAttachmentModel(file.value(), { owner, name: `${name}.attachmentModels` })),
-		),
+		attachmentModels,
+		supportedInputModalities,
 	});
 };
+
+export type AttachmentModel = ReturnType<typeof reatomAttachmentModel>;
 
 const reatomAttachmentModel = (
 	file: File,
@@ -92,7 +152,10 @@ const reatomAttachmentModel = (
 	);
 
 	return {
+		file,
 		stream,
+		name,
+		uploadProgress,
 	};
 };
 

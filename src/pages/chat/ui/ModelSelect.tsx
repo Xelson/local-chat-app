@@ -1,40 +1,158 @@
 import { createListCollection } from '@ark-ui/react';
-import { ChevronsUpDownIcon } from 'lucide-react';
-import { Select } from '~/shared/ui/kit/components';
+import { reatomComponent, reatomFactoryComponent } from '@reatom/react';
+import { ChevronsUpDownIcon, FileIcon, ImageIcon } from 'lucide-react';
+import { useMemo, useRef } from 'react';
+import { reatomModelsSelect, type ModelsSelectModel } from '~/entities/llm';
+import { Heading, Select, Skeleton, Text, Tooltip } from '~/shared/ui/kit/components';
+import { editorFormVariable } from '../model/editor-form';
+import { useScrollPagination } from '~/shared/ui/react-dom';
+import { HStack } from 'styled-system/jsx';
+import { match } from 'ts-pattern';
+import { css } from 'styled-system/css';
 
-const collection = createListCollection({
-	items: [
-		{ label: 'Gemini 2.5 Flash', value: 'gemini-flash' },
-		{ label: 'Claude 4', value: 'claude4' },
-	],
+export const ModelSelect = reatomFactoryComponent(() => {
+	const selectModel = reatomModelsSelect({ limit: 15 }, 'modelsSelect');
+
+	return () => {
+		const formModel = editorFormVariable.get();
+		const selectedModelId = formModel.fields.modelId.value();
+		const results = selectModel.data();
+
+		const collection = useMemo(() => {
+			const items = results?.map(item => ({ label: item.name, value: item.id }));
+			return createListCollection({ items: items ?? [] });
+		}, [results]);
+
+		return (
+			<Select.Root
+				variant='subtle'
+				collection={collection}
+				value={[selectedModelId]}
+				onValueChange={({ value }) => {
+					const selectedId = value[0];
+					formModel.fields.modelId.change(selectedId);
+					selectModel.selectedModelId.set(selectedId);
+				}}
+				onExitComplete={() => selectModel.limit.set(15)}
+				lazyMount
+				unmountOnExit
+			>
+				<Skeleton loading={!collection}>
+					<Select.Control>
+						<Select.Trigger minWidth='12rem'>
+							<Select.ValueText placeholder='Select a model' />
+							<ChevronsUpDownIcon />
+						</Select.Trigger>
+					</Select.Control>
+				</Skeleton>
+				<Select.Positioner>
+					<SelectContent
+						model={selectModel}
+					/>
+				</Select.Positioner>
+			</Select.Root>
+		);
+	};
 });
 
-export function ModelSelect() {
+const contextNumberFormatter = Intl.NumberFormat('en', { notation: 'compact' });
+const pricingFormatter = { format: (value: string) => `$${(Number(value) * 1_000_000).toFixed(2)}/M` };
+
+const SelectContent = reatomComponent(({ model: selectModel }: { model: ModelsSelectModel }) => {
+	const contentRef = useRef<HTMLDivElement>(null);
+	const total = selectModel.total();
+	const results = selectModel.data();
+
+	useScrollPagination(contentRef, {
+		loading: false,
+		shouldObserve: !!total && selectModel.limit() < total,
+		onLoadMore: () => selectModel.limit.increment(15),
+	});
+
 	return (
-		<Select.Root
-			variant='subtle'
-			collection={collection}
-			defaultValue={['gemini-flash']}
-			positioning={{ sameWidth: true }}
+		<Select.Content
+			ref={contentRef}
+			maxHeight='20rem'
+			maxWidth='30rem'
+			overflowY='auto'
 		>
-			<Select.Control>
-				<Select.Trigger minWidth='12rem'>
-					<Select.ValueText placeholder='Select a model' />
-					<ChevronsUpDownIcon />
-				</Select.Trigger>
-			</Select.Control>
-			<Select.Positioner>
-				<Select.Content>
-					<Select.ItemGroup>
-						<Select.ItemGroupLabel>Stable models</Select.ItemGroupLabel>
-						{collection.items.map(item => (
-							<Select.Item key={item.value} item={item}>
-								<Select.ItemText>{item.label}</Select.ItemText>
-							</Select.Item>
-						))}
-					</Select.ItemGroup>
-				</Select.Content>
-			</Select.Positioner>
-		</Select.Root>
+			<Select.ItemGroup>
+				<Select.ItemGroupLabel>Available models</Select.ItemGroupLabel>
+				{results?.map(item => (
+					<Select.Item
+						key={item.id}
+						item={{ label: item.name, value: item.id }}
+						height='auto'
+						alignItems='start'
+						flexDirection='column'
+						paddingY='0.5rem'
+						gap='0.5rem'
+					>
+						<HStack width='full' justifyContent='space-between' maxWidth='full'>
+							<Heading size='lg' truncate maxWidth='full'>
+								{item.name}
+							</Heading>
+
+							<HStack gap='0.5rem'>
+								{item.architecture.input_modalities.map(modality => (
+									match(modality)
+										.with('image', type => <SupportsImagesBadge key={type} />)
+										.with('file', type => <SupportsFilesBadge key={type} />)
+										.otherwise(() => null)
+								))}
+							</HStack>
+						</HStack>
+
+						<Text
+							color='fg.muted'
+							textStyle='sm'
+							lineClamp='3'
+						>
+							{item.description}
+						</Text>
+
+						<HStack gap='0.25rem' alignItems='start' color='fg.muted' textStyle='xs'>
+							<Text>{contextNumberFormatter.format(item.context_length)} context</Text>
+							•
+							<Text>{pricingFormatter.format(item.pricing.prompt)} input tokens</Text>
+							•
+							<Text>{pricingFormatter.format(item.pricing.completion)} output tokens</Text>
+						</HStack>
+					</Select.Item>
+				))}
+			</Select.ItemGroup>
+		</Select.Content>
+	);
+});
+
+const iconStyle = css({
+	size: '1.25rem',
+	color: 'gray.9',
+	cursor: 'help',
+});
+
+function SupportsImagesBadge() {
+	return (
+		<Tooltip.Composed
+			label='Supports images'
+			lazyMount
+			unmountOnExit
+			openDelay={0}
+		>
+			<ImageIcon className={iconStyle} />
+		</Tooltip.Composed>
+	);
+}
+
+function SupportsFilesBadge() {
+	return (
+		<Tooltip.Composed
+			label='Supports files'
+			lazyMount
+			unmountOnExit
+			openDelay={0}
+		>
+			<FileIcon className={iconStyle} />
+		</Tooltip.Composed>
 	);
 }

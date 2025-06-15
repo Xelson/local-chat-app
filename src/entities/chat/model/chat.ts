@@ -13,19 +13,21 @@ export type ChatModel = {
 	lastMessage: Computed<ChatMessageModel | null | undefined>;
 	messages: Computed<ChatMessageModel[]>;
 	branches: Computed<ChatBranchesModel | null | undefined>;
+	currentModelId: Computed<string | undefined>;
 	loaded: Computed<ChatLoaded | undefined>;
 };
 
 export const reatomChat = (
 	id: string,
 	{ loadAs, name }: { loadAs: Account | AnonymousJazzAgent; name: string },
-) => {
+): ChatModel => {
 	const loaded = atom<ChatLoaded | undefined>(undefined, `${name}.loaded`).extend(
 		withConnectHook(target => Chat.subscribe(id, { loadAs, resolve: { lastMessage: true } }, target.set)),
 	);
 
 	const nameAtom = computed(() => loaded()?.name, `${name}.role`);
 	const pinned = computed(() => loaded()?.pinned, `${name}.pinned`);
+	const currentModelId = computed(() => loaded()?.currentModelId, `${name}.currentModelId`);
 
 	const branchesCache = reatomMap<string, ChatBranchesModel>(undefined, `${name}._branchesCache`);
 	const getCachedBranch = (id: string) => (
@@ -65,6 +67,7 @@ export const reatomChat = (
 		id,
 		name: nameAtom,
 		pinned,
+		currentModelId,
 		lastMessage,
 		messages,
 		branches,

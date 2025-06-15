@@ -16,6 +16,18 @@ const MessageBubble = styled('div', {
 		borderRadius: 'l3',
 		maxWidth: 'full',
 	},
+	variants: {
+		role: {
+			assistant: {
+				colorPalette: 'gray',
+				borderBottomLeftRadius: '0',
+			},
+			user: {
+				alignSelf: 'end',
+				borderBottomRightRadius: '0',
+			},
+		},
+	},
 });
 
 export const MessagesStream = reatomComponent(() => {
@@ -44,8 +56,7 @@ export const MessagesStream = reatomComponent(() => {
 				))}
 				{typing && (
 					<MessageBubble
-						colorPalette='purple'
-						alignSelf='end'
+						role='user'
 						opacity='0.5'
 					>
 						<ContentRenderer model={content.value} />
@@ -65,10 +76,7 @@ const MessageRenderer = reatomComponent(({ model }: { model: ChatMessageModel })
 
 	return (
 		<Skeleton loading={!textModel} asChild>
-			<MessageBubble
-				colorPalette={role == 'user' ? 'purple' : 'grey'}
-				alignSelf={role == 'user' ? 'end' : 'start'}
-			>
+			<MessageBubble role={role}>
 				{textModel ? <ContentRenderer model={textModel} /> : <Spinner size='sm' />}
 			</MessageBubble>
 		</Skeleton>
