@@ -123,6 +123,13 @@ const InputPanelConentInput = reatomComponent(() => {
 				placeholder='Type your message here...'
 				maxHeight='50vh'
 				{...getFieldProps()}
+
+				onKeyDown={(e) => {
+					if (e.key === 'Enter' && !e.shiftKey) {
+						e.preventDefault();
+						model.submit();
+					}
+				}}
 			/>
 		</TextField.Root>
 	);

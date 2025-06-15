@@ -1,4 +1,4 @@
-import { assign, atom, computed, reatomForm, variable, withAsyncData, wrap } from '@reatom/core';
+import { assign, atom, computed, reatomForm, variable, withAsyncData, withCallHook, wrap } from '@reatom/core';
 import type { Account, Group } from 'jazz-tools';
 import { co, CoPlainText } from 'jazz-tools';
 import { jazzContext } from '~/entities/account';
@@ -58,6 +58,12 @@ export const reatomEditorForm = (owner: Account | Group, name: string) => {
 			}
 		},
 	});
+
+	form.submit.onFulfill.extend(
+		withCallHook(() => {
+			form.fields.content.elementRef()?.focus();
+		}),
+	);
 
 	return assign(form, {
 		attachmentModels: computed(() => form.fields.attachments

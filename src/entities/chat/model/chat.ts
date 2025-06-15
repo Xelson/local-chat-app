@@ -1,12 +1,20 @@
-import { atom, withConnectHook, computed, type Computed } from '@reatom/core';
+import { atom, withConnectHook, computed, type Computed, reatomMap } from '@reatom/core';
 import type { Account, AnonymousJazzAgent, co } from 'jazz-tools';
-import { reatomChatBranchesList } from './chat-branch';
+import { reatomChatBranchesList, type ChatBranchesModel } from './chat-branch';
 import { reatomChatMessage, type ChatMessageModel } from './chat-message';
 import { Chat, ChatsList } from './schema';
 
 type ChatLoaded = co.loaded<typeof Chat>;
 
-export type ChatModel = ReturnType<typeof reatomChat>;
+export type ChatModel = {
+	id: string;
+	name: Computed<string | undefined>;
+	pinned: Computed<boolean | undefined>;
+	lastMessage: Computed<ChatMessageModel | null | undefined>;
+	messages: Computed<ChatMessageModel[]>;
+	branches: Computed<ChatBranchesModel | null | undefined>;
+	loaded: Computed<ChatLoaded | undefined>;
+};
 
 export const reatomChat = (
 	id: string,
@@ -18,21 +26,26 @@ export const reatomChat = (
 
 	const nameAtom = computed(() => loaded()?.name, `${name}.role`);
 	const pinned = computed(() => loaded()?.pinned, `${name}.pinned`);
-	const lastMessage = computed(() => {
-		const loadedLast = loaded()?._refs.lastMessage?.value;
 
-		return loadedLast
-			? reatomChatMessage(loadedLast.id, { loadAs, name: `${name}.prev` })
-			: loadedLast;
-	}, `${name}.prev`);
+	const branchesCache = reatomMap<string, ChatBranchesModel>(undefined, `${name}._branchesCache`);
+	const getCachedBranch = (id: string) => (
+		branchesCache.getOrCreate(id, () => reatomChatBranchesList(id, { loadAs, name: `${name}.branches.${id}` }))
+	);
 
 	const branches = computed(() => {
 		const loadedBranches = loaded()?._refs.branches?.value;
-
-		return loadedBranches
-			? reatomChatBranchesList(loadedBranches.id, { loadAs, name: `${name}.branches.${loadedBranches.id}` })
-			: loadedBranches;
+		return loadedBranches ? getCachedBranch(loadedBranches.id) : loadedBranches;
 	}, `${name}.branches`);
+
+	const messagesCache = reatomMap<string, ChatMessageModel>(undefined, `${name}._branchesCache`);
+	const getCachedMessage = (id: string) => (
+		messagesCache.getOrCreate(id, () => reatomChatMessage(id, { loadAs, name: `${name}.messages.${id}` }))
+	);
+
+	const lastMessage = computed(() => {
+		const loadedLast = loaded()?._refs.lastMessage?.value;
+		return loadedLast ? getCachedMessage(loadedLast.id) : loadedLast;
+	}, `${name}.prev`);
 
 	const messages = computed(() => {
 		const models: ChatMessageModel[] = [];
@@ -42,7 +55,7 @@ export const reatomChat = (
 			loadedLast;
 			loadedLast = loadedLast?._refs.prev?.value
 		) {
-			models.push(reatomChatMessage(loadedLast.id, { loadAs, name: `${name}.messages.${loadedLast.id}` }));
+			models.push(getCachedMessage(loadedLast.id));
 		}
 
 		return models.reverse();
@@ -75,13 +88,15 @@ export const reatomChatsList = (
 		withConnectHook(target => ChatsList.subscribe(id, { loadAs }, target.set)),
 	);
 
+	const chatsCache = reatomMap<string, ChatModel>(undefined, `${name}._chatsCache`);
+	const getCachedChat = (id: string) => (
+		chatsCache.getOrCreate(id, () => reatomChat(id, { loadAs, name: `${name}.item.${id}` }))
+	);
+
 	const items = computed(() => {
 		const refs = loaded()?._refs;
 		const loadedItems = refs ? [...refs].map(ref => ref.value) : undefined;
-
-		return loadedItems ? loadedItems.map(item => (
-			item ? reatomChat(item.id, { loadAs, name: `${name}.item.${item.id}` }) : item
-		)) : loadedItems;
+		return loadedItems ? loadedItems.map(item => item ? getCachedChat(item.id) : item) : loadedItems;
 	}, `${name}.items`);
 
 	return {
