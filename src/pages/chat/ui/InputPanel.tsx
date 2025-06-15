@@ -11,7 +11,6 @@ import { useEffect, useState } from 'react';
 import { Collapsible } from '~/shared/ui/kit/components/collapsible';
 import { match } from 'ts-pattern';
 import { css } from 'styled-system/css';
-import { modelsListQuery } from '~/entities/llm';
 
 export const InputPanel = reatomComponent(() => {
 	const model = editorFormVariable.get();
@@ -139,7 +138,7 @@ const InputPanelAttachmentsFileUpload = reatomComponent((props: FileUpload.RootP
 	const modalities = model.supportedInputModalities();
 
 	const mimeType = match(modalities)
-		.when(type => type?.includes('file'), () => '*')
+		.when(type => type?.includes('file'), () => '')
 		.when(type => type?.includes('image'), () => 'image/*')
 		.otherwise(() => undefined);
 

@@ -21,6 +21,7 @@ import { Chat, ChatBranchesList, ChatMessage } from '~/entities/chat';
 import { modelsListQuery } from '~/entities/llm';
 import { invariant } from '~/shared/lib/asserts';
 import { sidebarChatRoute } from '~/widgets/nav-sidebar';
+import type { Modality } from '../api/fetch-models';
 
 export type EditorFormModel = ReturnType<typeof reatomEditorForm>;
 
@@ -28,7 +29,7 @@ export const reatomEditorForm = (owner: Account | Group, name: string) => {
 	const form = reatomForm({
 		content: '',
 		modelId: '',
-		attachments: experimental_fieldArray((param: File, name) => reatomField(param, name)),
+		attachments: experimental_fieldArray((param: File, name) => reatomField<File>(param, name)),
 	}, {
 		name,
 		validateOnChange: true,
@@ -125,9 +126,26 @@ export const reatomEditorForm = (owner: Account | Group, name: string) => {
 		return modelsListQuery.data()?.find(item => item.id === modelId)?.architecture.input_modalities;
 	}, `${name}.supportedInputModalities`);
 
+	const usedModalities = computed(() => {
+		const attachments = form.fields.attachments.array();
+		const modalities: Modality[] = [];
+
+		attachments.forEach((model) => {
+			const mimeType = model().type;
+			if (mimeType.match('image/*')) modalities.push('image');
+			else modalities.push('file');
+		});
+
+		if (form.fields.content.value())
+			modalities.push('text');
+
+		return modalities;
+	}, `${name}.usedModalities`);
+
 	return assign(form, {
 		attachmentModels,
 		supportedInputModalities,
+		usedModalities,
 	});
 };
 

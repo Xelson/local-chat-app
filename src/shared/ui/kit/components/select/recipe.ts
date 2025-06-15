@@ -54,12 +54,8 @@ export const select = defineSlotRecipe({
 				color: 'fg.default',
 			},
 			_disabled: {
-				color: 'fg.disabled',
 				cursor: 'not-allowed',
-				_hover: {
-					background: 'transparent',
-					color: 'fg.disabled',
-				},
+				opacity: '0.5',
 			},
 		},
 		itemGroupLabel: {

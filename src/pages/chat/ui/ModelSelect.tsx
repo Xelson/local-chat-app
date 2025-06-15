@@ -9,6 +9,7 @@ import { useScrollPagination } from '~/shared/ui/react-dom';
 import { HStack } from 'styled-system/jsx';
 import { match } from 'ts-pattern';
 import { css } from 'styled-system/css';
+import { spawn } from '@reatom/core';
 
 export const ModelSelect = reatomFactoryComponent(() => {
 	const selectModel = reatomModelsSelect({ limit: 15 }, 'modelsSelect');
@@ -60,13 +61,16 @@ const pricingFormatter = { format: (value: string) => `$${(Number(value) * 1_000
 
 const SelectContent = reatomComponent(({ model: selectModel }: { model: ModelsSelectModel }) => {
 	const contentRef = useRef<HTMLDivElement>(null);
+
+	const formModel = editorFormVariable.get();
 	const total = selectModel.total();
 	const results = selectModel.data();
+	const usedModalities = formModel.usedModalities();
 
 	useScrollPagination(contentRef, {
 		loading: false,
 		shouldObserve: !!total && selectModel.limit() < total,
-		onLoadMore: () => selectModel.limit.increment(15),
+		onLoadMore: () => spawn(() => selectModel.limit.increment(15)),
 	});
 
 	return (
@@ -81,7 +85,12 @@ const SelectContent = reatomComponent(({ model: selectModel }: { model: ModelsSe
 				{results?.map(item => (
 					<Select.Item
 						key={item.id}
-						item={{ label: item.name, value: item.id }}
+						item={{
+							label: item.name,
+							value: item.id,
+							disabled: !!usedModalities.length
+								&& !usedModalities.every(m => item.architecture.input_modalities.includes(m)),
+						}}
 						height='auto'
 						alignItems='start'
 						flexDirection='column'

@@ -1,7 +1,7 @@
 import { abortVar } from '@reatom/core';
 import { err, ok } from '~/shared/lib/neverthrow';
 
-type Modalities = 'text' | 'file' | 'image';
+export type Modality = 'text' | 'file' | 'image';
 
 type Response = {
 	id: string;
@@ -9,8 +9,8 @@ type Response = {
 	description: string;
 	context_length: number;
 	architecture: {
-		input_modalities: Modalities[];
-		output_modalities: Modalities[];
+		input_modalities: Modality[];
+		output_modalities: Modality[];
 	};
 	pricing: {
 		prompt: string;
