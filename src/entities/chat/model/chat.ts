@@ -1,7 +1,7 @@
 import { atom, withConnectHook, computed, type Computed } from '@reatom/core';
 import type { Account, AnonymousJazzAgent, co } from 'jazz-tools';
 import { reatomChatBranchesList } from './chat-branch';
-import { reatomChatMessage } from './chat-message';
+import { reatomChatMessage, type ChatMessageModel } from './chat-message';
 import { Chat, ChatsList } from './schema';
 
 type ChatLoaded = co.loaded<typeof Chat>;
@@ -13,7 +13,7 @@ export const reatomChat = (
 	{ loadAs, name }: { loadAs: Account | AnonymousJazzAgent; name: string },
 ) => {
 	const loaded = atom<ChatLoaded | undefined>(undefined, `${name}.loaded`).extend(
-		withConnectHook(target => Chat.subscribe(id, { loadAs }, target.set)),
+		withConnectHook(target => Chat.subscribe(id, { loadAs, resolve: { lastMessage: true } }, target.set)),
 	);
 
 	const nameAtom = computed(() => loaded()?.name, `${name}.role`);
@@ -34,11 +34,26 @@ export const reatomChat = (
 			: loadedBranches;
 	}, `${name}.branches`);
 
+	const messages = computed(() => {
+		const models: ChatMessageModel[] = [];
+
+		for (
+			let loadedLast = loaded()?._refs.lastMessage?.value;
+			loadedLast;
+			loadedLast = loadedLast?._refs.prev?.value
+		) {
+			models.push(reatomChatMessage(loadedLast.id, { loadAs, name: `${name}.messages.${loadedLast.id}` }));
+		}
+
+		return models.reverse();
+	}, `${name}.messages`);
+
 	return {
 		id,
 		name: nameAtom,
 		pinned,
 		lastMessage,
+		messages,
 		branches,
 		loaded,
 	};

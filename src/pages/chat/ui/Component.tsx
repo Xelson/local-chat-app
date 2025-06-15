@@ -1,14 +1,16 @@
 import { Center, Divider, HStack, VStack } from 'styled-system/jsx';
-import { IconButton, TextField } from '~/shared/ui/kit/components';
-import { Sidebar } from '~/widgets/nav-sidebar';
+import { IconButton, Spinner, TextField } from '~/shared/ui/kit/components';
+import { Sidebar, sidebarChatRoute } from '~/widgets/nav-sidebar';
 import { ModelSelect } from './ModelSelect';
 import { ArrowUpIcon, PaperclipIcon } from 'lucide-react';
-import { top } from '@reatom/core';
+import { addCallHook, top, wrap } from '@reatom/core';
 import { editorFormVariable, reatomEditorForm } from '../model/editor-form';
 import { reatomComponent, reatomContext, reatomFactoryComponent } from '@reatom/react';
 import { Group } from 'jazz-tools';
 import { useFormField } from '~/shared/ui/reatom';
 import { MessagesStream } from './MessagesStream';
+import { useEffect, useState } from 'react';
+import { sidebarRoute } from '~/widgets/nav-sidebar/model/route';
 
 export const Component = reatomFactoryComponent(() => {
 	// Here we initialize a reactive model bound to this component's lifecycle. This callback executes only once,
@@ -28,7 +30,12 @@ export const Component = reatomFactoryComponent(() => {
 	return () => (
 		<reatomContext.Provider value={frame}>
 			<HStack size='full' gap='1rem'>
-				<Sidebar />
+				<Sidebar
+					onClickAddChat={() => {
+						model.fields.content.elementRef()?.focus();
+						sidebarRoute.go();
+					}}
+				/>
 
 				<Center
 					size='full'
@@ -53,7 +60,7 @@ export const Component = reatomFactoryComponent(() => {
 
 const InputPanel = reatomComponent(() => {
 	const model = editorFormVariable.get();
-	const stickToBottom = model.focus().dirty;
+	const stickToBottom = model.focus().dirty || sidebarChatRoute.exact();
 
 	return (
 		<VStack
@@ -95,9 +102,15 @@ const InputPanel = reatomComponent(() => {
 const InputPanelConentInput = reatomComponent(() => {
 	const model = editorFormVariable.get();
 	const { value, setValue, getFieldProps } = useFormField(model.fields.content);
+	const [version, setVersion] = useState(0);
+
+	useEffect(() => {
+		return addCallHook(model.fields.content.reset, () => setVersion(v => v + 1));
+	}, [model.fields.content.reset]);
 
 	return (
 		<TextField.Root
+			key={version}
 			className='group'
 			variant='unstyled'
 			padding='0'
@@ -117,15 +130,18 @@ const InputPanelConentInput = reatomComponent(() => {
 
 const InputPanelSubmitButton = reatomComponent(() => {
 	const model = editorFormVariable.get();
-	const disabled = !model.focus().dirty;
+	const pending = !!model.submit.pending();
+	const disabled = !model.focus().dirty || pending;
+	const submit = wrap(model.submit);
 
 	return (
 		<IconButton
 			variant='subtle'
 			size='sm'
 			disabled={disabled}
+			onClick={submit}
 		>
-			<ArrowUpIcon />
+			{pending ? <Spinner size='sm' /> : <ArrowUpIcon />}
 		</IconButton>
 	);
 });

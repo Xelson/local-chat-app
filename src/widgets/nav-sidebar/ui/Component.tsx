@@ -1,12 +1,17 @@
 import { reatomComponent } from '@reatom/react';
-import { VStack } from 'styled-system/jsx';
-import { sidebarRoute } from '../model/route';
+import { styled, VStack } from 'styled-system/jsx';
+import { sidebarChatRoute, sidebarRoute } from '../model/route';
 import { Button, Heading, Skeleton } from '~/shared/ui/kit/components';
 import { PlusIcon } from 'lucide-react';
 import { BrandLogo } from '~/entities/branding';
 import { type ChatModel } from '~/entities/chat';
+import { wrap } from '@reatom/core';
 
-export const Component = reatomComponent(() => {
+interface ComponentProps {
+	onClickAddChat?: () => void;
+}
+
+export const Component = reatomComponent(({ onClickAddChat }: ComponentProps) => {
 	const loaderData = sidebarRoute.loader.data();
 	const chatItems = loaderData?.chatsList.items();
 
@@ -33,6 +38,7 @@ export const Component = reatomComponent(() => {
 				colorPalette='purple'
 				width='full'
 				borderRadius='l2'
+				onClick={onClickAddChat}
 			>
 				<PlusIcon /> New chat
 			</Button>
@@ -58,14 +64,27 @@ const ChatItem = reatomComponent(({ model }: { model: ChatModel | null | undefin
 	if (model === null)
 		return null;
 
+	const selected = sidebarChatRoute()?.chatId === model?.id;
+	const navigate = wrap(sidebarChatRoute.go);
+
+	const handleClick = () => {
+		if (!model)
+			return;
+
+		navigate({ chatId: model.id });
+	};
+
 	return (
 		<Skeleton loading={!model} asChild>
 			<Button
 				variant='ghost'
 				width='full'
 				justifyContent='start'
+				data-selected={selected ? 'true' : undefined}
+				onClick={handleClick}
+				maxWidth='full'
 			>
-				{model?.name()}
+				<styled.span truncate>{model?.name()}</styled.span>
 			</Button>
 		</Skeleton>
 	);

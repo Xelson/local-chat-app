@@ -6,6 +6,8 @@ export const spinner = defineRecipe({
 		display: 'inline-block',
 		borderWidth: '2px',
 		borderColor: 'colorPalette.default',
+		borderBottomColor: 'transparent',
+		borderLeftColor: 'transparent',
 		borderStyle: 'solid',
 		borderRadius: 'full',
 		width: 'var(--size)',

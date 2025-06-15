@@ -8,11 +8,10 @@ export function useFormField<State, Value>(model: FieldAtom<State, Value>) {
 	const validation = model.validation();
 	const value = model.value();
 	const disabled = model.disabled();
-	const setElementRef = wrap(model.elementRef.set);
 
-	const ref = useCallback((element: HTMLElement | null) => {
-		setElementRef(element ? element : undefined);
-	}, [setElementRef]);
+	const ref = wrap(useCallback((element: HTMLElement | null) => {
+		model.elementRef.set(element ? element : undefined);
+	}, [model]));
 
 	const onBlur = useCallback(() => blur(), [blur]);
 	const onFocus = useCallback(() => focus(), [focus]);
