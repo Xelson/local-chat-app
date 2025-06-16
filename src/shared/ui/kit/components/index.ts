@@ -11,3 +11,4 @@ export * from './badge';
 export * from './tooltip';
 export * from './field';
 export * from './menu';
+export * from './dialog';

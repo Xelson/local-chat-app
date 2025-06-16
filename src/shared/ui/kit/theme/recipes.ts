@@ -13,6 +13,7 @@ import { badge } from '../components/badge/recipe';
 import { tooltip } from '../components/tooltip/recipe';
 import { field } from '../components/field/recipe';
 import { menu } from '../components/menu/recipe';
+import { dialog } from '../components/dialog/recipe';
 
 export const recipes = {
 	text,
@@ -33,4 +34,5 @@ export const slotRecipes = {
 	tooltip,
 	field,
 	menu,
+	dialog,
 };
