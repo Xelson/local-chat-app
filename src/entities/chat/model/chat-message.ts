@@ -19,7 +19,7 @@ export type ChatMessageModel = {
 	id: string;
 	role: Computed<Loaded['role'] | undefined>;
 	streaming: Computed<Loaded['streaming'] | undefined>;
-	answeredBy: Computed<string | undefined>;
+	answeredByModel: Computed<string | undefined>;
 
 	content: Computed<{ text: PlainTextModel } | undefined | null>;
 	prev: Computed<ChatMessageModel | undefined | null>;
@@ -36,7 +36,7 @@ export const reatomChatMessage = (
 
 	const role = computed(() => loaded()?.role, `${name}.role`);
 	const streaming = computed(() => loaded()?.streaming, `${name}.streaming`);
-	const answeredBy = computed(() => loaded()?.answeredBy, `${name}.answeredBy`);
+	const answeredByModel = computed(() => loaded()?.answeredByModel, `${name}.answeredByModel`);
 
 	const messagesCache = reatomMap<string, ChatMessageModel>(undefined, `${name}._messagesCache`);
 	const getCachedMessage = (id: string) => (
@@ -63,7 +63,7 @@ export const reatomChatMessage = (
 		role,
 		content,
 		streaming,
-		answeredBy,
+		answeredByModel,
 		prev,
 		loaded,
 	};

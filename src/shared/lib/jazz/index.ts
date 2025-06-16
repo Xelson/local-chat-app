@@ -1,5 +1,7 @@
 import { type JazzContextManagerProps, JazzBrowserContextManager } from 'jazz-browser';
-import type { AccountClass, Account, CoValueFromRaw, AnyAccountSchema } from 'jazz-tools';
+import { type AccountClass, type Account, type CoValueFromRaw, type AnyAccountSchema, PassphraseAuth } from 'jazz-tools';
+import { invariant } from '../asserts';
+import wordsList from './words-list.json';
 
 export async function createVanillaJazzApp<
 	S extends
@@ -13,19 +15,23 @@ export async function createVanillaJazzApp<
 		...opts,
 	});
 
-	function getCurrentAccount() {
-		const context = contextManager.getCurrentValue();
-		if (!context || !('me' in context)) {
-			throw new Error('');
-		}
+	const context = contextManager.getCurrentValue();
+	invariant(context && 'me' in context, 'Failed to get me from jazz context');
 
-		return context.me;
-	}
+	const authSecretStorage = contextManager.getAuthSecretStorage();
 
 	return {
-		me: getCurrentAccount(),
-		getCurrentAccount,
+		me: context.me,
+		context,
 		logOut: contextManager.logOut,
-		authSecretStorage: contextManager.getAuthSecretStorage(),
+		authSecretStorage,
+		wordsListSet: new Set(wordsList),
+		passphraseAuth: new PassphraseAuth(
+			context.node.crypto,
+			context.authenticate,
+			context.register,
+			authSecretStorage,
+			wordsList,
+		),
 	};
 }

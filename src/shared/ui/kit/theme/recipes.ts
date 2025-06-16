@@ -11,6 +11,7 @@ import { collapsible } from '../components/collapsible/recipe';
 import { progress } from '../components/progress/recipe';
 import { badge } from '../components/badge/recipe';
 import { tooltip } from '../components/tooltip/recipe';
+import { field } from '../components/field/recipe';
 
 export const recipes = {
 	text,
@@ -29,4 +30,5 @@ export const slotRecipes = {
 	collapsible,
 	progress,
 	tooltip,
+	field,
 };

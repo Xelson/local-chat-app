@@ -3,9 +3,10 @@ import './index.css';
 import { RootLayout } from '~/pages/root';
 import { ChatPage } from '~/pages/chat';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { jazzContext } from '~/entities/account';
+import { openrouterApiKey } from '~/entities/account';
 import { connectLogger } from '@reatom/core';
+
+openrouterApiKey.subscribe(key => console.log(key));
 
 connectLogger();
 

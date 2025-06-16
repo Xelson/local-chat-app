@@ -101,7 +101,7 @@ const ContentRenderer = reatomComponent(({ model }: { model: ContentRendererInpu
 	const html = renderer();
 
 	if (!html)
-		return <Spinner size='sm' />;
+		return <Skeleton loading>{model()?.toString()}</Skeleton>;
 
 	return (
 		<styled.div

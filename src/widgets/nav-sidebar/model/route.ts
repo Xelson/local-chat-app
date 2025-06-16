@@ -1,13 +1,16 @@
 import { reatomRoute } from '@reatom/core';
 import { z } from 'zod/v4';
-import { jazzContext } from '~/entities/account';
+import { account } from '~/entities/account';
 import { reatomChatsList } from '~/entities/chat';
-
-const { me } = jazzContext;
+import { invariant } from '~/shared/lib/asserts';
 
 export const sidebarRoute = reatomRoute({
 	path: '',
 	async loader() {
+		const me = account();
+		if (!me || !me.root?.chats)
+			return;
+
 		return {
 			chatsList: reatomChatsList(me.root.chats.id, { loadAs: me, name: 'chats' }),
 		};
@@ -20,7 +23,11 @@ export const sidebarChatRoute = sidebarRoute.route({
 		chatId: z.string(),
 	}),
 	async loader({ chatId }) {
-		const { chatsList } = await sidebarRoute.loader();
+		const loaderData = sidebarRoute.loader.data();
+		if (!loaderData)
+			return;
+
+		const { chatsList } = loaderData;
 		return { chat: chatsList.items()?.find(chat => chat?.id === chatId) };
 	},
 });

@@ -16,7 +16,7 @@ import {
 
 import type { Account, Group } from 'jazz-tools';
 import { co, CoPlainText } from 'jazz-tools';
-import { jazzContext } from '~/entities/account';
+import { account, jazzContext } from '~/entities/account';
 import { Chat, ChatBranchesList, ChatMessage } from '~/entities/chat';
 import { modelsListQuery } from '~/entities/llm';
 import { invariant } from '~/shared/lib/asserts';
@@ -56,7 +56,7 @@ export const reatomEditorForm = (owner: Account | Group, name: string) => {
 					currentModelId: modelId,
 				});
 
-				jazzContext.me.root.chats.push(chat);
+				account()?.root.chats?.push(chat);
 
 				sidebarChatRoute.go({ chatId: chat.id });
 			}

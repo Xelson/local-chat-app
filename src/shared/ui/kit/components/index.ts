@@ -9,3 +9,4 @@ export * from './file-upload';
 export * from './progress';
 export * from './badge';
 export * from './tooltip';
+export * from './field';

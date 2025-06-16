@@ -1,8 +1,9 @@
-import { co, z } from 'jazz-tools';
+import { co, Group, z } from 'jazz-tools';
 import { ChatsList } from '../@x/chat';
 
 const AppRoot = co.map({
 	chats: ChatsList,
+	openrouterApiKey: z.string().optional(),
 });
 
 const AccountProfile = co.profile({
@@ -13,10 +14,20 @@ const AccountProfile = co.profile({
 export const AppAccount = co.account({
 	root: AppRoot,
 	profile: AccountProfile,
-}).withMigration(async (account) => {
-	if (!account.root) {
+}).withMigration(async (account, creationProps) => {
+	if (account.root === undefined) {
 		account.root = AppRoot.create({
-			chats: ChatsList.create([], { owner: account }),
+			chats: ChatsList.create([], Group.create()),
 		});
+	}
+
+	if (account.profile === undefined) {
+		const profileGroup = Group.create();
+		profileGroup.makePublic();
+
+		account.profile = AccountProfile.create({
+			name: creationProps?.name ?? 'New user',
+			avatar: undefined,
+		}, profileGroup);
 	}
 });
