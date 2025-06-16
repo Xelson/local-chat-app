@@ -29,7 +29,7 @@ export const Component = reatomFactoryComponent(() => {
 				<Sidebar
 					onClickAddChat={() => {
 						model.fields.content.elementRef()?.focus();
-						sidebarRoute.go();
+						// sidebarRoute.go();
 					}}
 				/>
 

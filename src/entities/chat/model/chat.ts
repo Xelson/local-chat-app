@@ -1,4 +1,4 @@
-import { atom, withConnectHook, computed, type Computed, reatomMap } from '@reatom/core';
+import { atom, withConnectHook, computed, type Computed, reatomMap, type Action } from '@reatom/core';
 import type { Account, AnonymousJazzAgent, co } from 'jazz-tools';
 import { reatomChatBranchesList, type ChatBranchesModel } from './chat-branch';
 import { reatomChatMessage, type ChatMessageModel } from './chat-message';
@@ -8,8 +8,8 @@ type ChatLoaded = co.loaded<typeof Chat>;
 
 export type ChatModel = {
 	id: string;
-	name: Computed<string | undefined>;
-	pinned: Computed<boolean | undefined>;
+	name: Computed<string | undefined> & { update: Action<[name: string], unknown> };
+	pinned: Computed<boolean | undefined> & { update: Action<[pinned: boolean], unknown> };
 	lastMessage: Computed<ChatMessageModel | null | undefined>;
 	messages: Computed<ChatMessageModel[]>;
 	branches: Computed<ChatBranchesModel | null | undefined>;
@@ -25,8 +25,14 @@ export const reatomChat = (
 		withConnectHook(target => Chat.subscribe(id, { loadAs, resolve: { lastMessage: true } }, target.set)),
 	);
 
-	const nameAtom = computed(() => loaded()?.name, `${name}.role`);
-	const pinned = computed(() => loaded()?.pinned, `${name}.pinned`);
+	const nameAtom = computed(() => loaded()?.name, `${name}.role`).actions({
+		update: (name: string) => loaded()?.applyDiff({ name }),
+	});
+
+	const pinned = computed(() => loaded()?.pinned, `${name}.pinned`).actions({
+		update: (pinned: boolean) => loaded()?.applyDiff({ pinned }),
+	}); ;
+
 	const currentModelId = computed(() => loaded()?.currentModelId, `${name}.currentModelId`);
 
 	const branchesCache = reatomMap<string, ChatBranchesModel>(undefined, `${name}._branchesCache`);

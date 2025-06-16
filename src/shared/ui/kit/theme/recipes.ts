@@ -12,6 +12,7 @@ import { progress } from '../components/progress/recipe';
 import { badge } from '../components/badge/recipe';
 import { tooltip } from '../components/tooltip/recipe';
 import { field } from '../components/field/recipe';
+import { menu } from '../components/menu/recipe';
 
 export const recipes = {
 	text,
@@ -31,4 +32,5 @@ export const slotRecipes = {
 	progress,
 	tooltip,
 	field,
+	menu,
 };
