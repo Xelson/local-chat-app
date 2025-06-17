@@ -12,6 +12,8 @@ export const MessageBubble = styled('div', {
 		maxWidth: 'full',
 		minHeight: '2.5rem',
 		flexShrink: '0',
+		overflow: 'hidden',
+		position: 'relative',
 	},
 	variants: {
 		role: {

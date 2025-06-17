@@ -30,7 +30,13 @@ export const MessageRenderer = reactMemo(reatomComponent(({ model }: { model: Ch
 					flexDir='row'
 					alignItems='end'
 				>
-					<VStack alignItems='start' gap='inherit' flexGrow='1' minW='0' maxW='full'>
+					<VStack
+						alignItems='start'
+						gap='inherit'
+						flexGrow='1'
+						minW='0'
+						maxW='full'
+					>
 						{textModel && <ContentRenderer id={model.id} model={textModel} />}
 
 						<AttachmentsRenderer model={model} />

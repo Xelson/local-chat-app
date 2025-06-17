@@ -102,10 +102,21 @@ export const ContentRenderer = reatomComponent(({ id, model }: { id: string; mod
 
 	if (!html) {
 		const rawText = model()?.toString();
+
 		return (
-			<Skeleton loading bg='transparent' maxW='full'>
-				{rawText || '? '.repeat(stableRandomByString(id, 8, 300))}
-			</Skeleton>
+			<styled.div>
+				<styled.span visibility='hidden'>
+					{rawText ?? '? '.repeat(stableRandomByString(id, 8, 60))}
+				</styled.span>
+
+				<Skeleton
+					loading
+					bg='colorPalette.6'
+					position='absolute'
+					inset='0'
+					borderRadius='none'
+				/>
+			</styled.div>
 		);
 	}
 
