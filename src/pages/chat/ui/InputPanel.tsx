@@ -3,15 +3,16 @@ import { FileUpload, IconButton, Progress, Spinner, Text, TextField } from '~/sh
 import { sidebarChatRoute } from '~/widgets/nav-sidebar';
 import { ModelSelect } from './ModelSelect';
 import { ArrowUpIcon, FileIcon, PaperclipIcon, PlusIcon, Trash2Icon } from 'lucide-react';
-import { addCallHook, memo, peek, wrap } from '@reatom/core';
+import { memo, peek, wrap } from '@reatom/core';
 import { editorFormVariable, type AttachmentModel } from '../model/editor-form';
 import { reatomComponent } from '@reatom/react';
 import { useFormField } from '~/shared/ui/reatom';
-import { useEffect, useState } from 'react';
 import { Collapsible } from '~/shared/ui/kit/components/collapsible';
 import { match } from 'ts-pattern';
 import { css } from 'styled-system/css';
 import { useFileUploadContext } from '@ark-ui/react';
+import { mergeRefs } from '~/shared/ui/react';
+import { useEffect, useRef } from 'react';
 
 export const InputPanel = reatomComponent(() => {
 	const model = editorFormVariable.get();
@@ -82,20 +83,23 @@ const InputPanelConentInput = reatomComponent(() => {
 	const uploader = useFileUploadContext();
 	const model = editorFormVariable.get();
 	const { value, setValue, getFieldProps } = useFormField(model.fields.content);
-	const [version, setVersion] = useState(0);
+	const latestSelectionStartRef = useRef(NaN);
+	const inputRef = useRef<HTMLTextAreaElement>(null);
+	const finalRef = mergeRefs(inputRef, getFieldProps().ref);
 
 	useEffect(() => {
-		return addCallHook(model.fields.content.reset, () => setVersion(v => v + 1));
-	}, [model.fields.content.reset]);
+		const selectionStart = latestSelectionStartRef.current;
+		if (!isNaN(selectionStart))
+			inputRef.current?.setSelectionRange(selectionStart, selectionStart);
+	}, [value]);
 
 	return (
 		<TextField.Root
-			key={version}
 			className='group'
 			variant='unstyled'
 			padding='0'
 			width='full'
-			defaultValue={value}
+			value={value}
 			onValueChange={setValue}
 		>
 			<TextField.Textarea
@@ -103,6 +107,11 @@ const InputPanelConentInput = reatomComponent(() => {
 				placeholder='Type your message here...'
 				maxHeight='50vh'
 				{...getFieldProps()}
+				ref={finalRef}
+				onChange={(e) => {
+					latestSelectionStartRef.current = e.target.selectionStart;
+					console.log({ selectionStart: e.target.selectionStart });
+				}}
 				onKeyDown={(e) => {
 					if (e.key === 'Enter' && !e.shiftKey) {
 						e.preventDefault();

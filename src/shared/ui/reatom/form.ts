@@ -9,7 +9,7 @@ export function useFormField<State, Value>(model: FieldAtom<State, Value>) {
 	const value = model.value();
 	const disabled = model.disabled();
 
-	const ref = wrap(useCallback((element: HTMLElement | null) => {
+	const ref = wrap(useCallback((element: HTMLInputElement | HTMLTextAreaElement | null) => {
 		model.elementRef.set(element ? element : undefined);
 	}, [model]));
 

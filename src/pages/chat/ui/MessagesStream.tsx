@@ -1,16 +1,18 @@
-import { memo, reatomMap } from '@reatom/core';
+import { memo, reatomMap, wrap } from '@reatom/core';
 import { reatomComponent } from '@reatom/react';
 import { HStack, styled, VStack } from 'styled-system/jsx';
 import { editorFormVariable } from '../model/editor-form';
 import { useMemo, memo as reactMemo, type PropsWithChildren, useLayoutEffect, useRef, type RefObject } from 'react';
-import { Badge, Skeleton, Spinner, Text } from '~/shared/ui/kit/components';
+import { Badge, Popover, Skeleton, Spinner, Text } from '~/shared/ui/kit/components';
 import { sidebarChatRoute } from '~/widgets/nav-sidebar';
 import type { ChatMessageModel } from '~/entities/chat';
 import { type ContentRenderer, type ContentRendererInput, reatomContentRenderer } from '../model/content-renderer';
 import type { FileStream } from 'jazz-tools';
-import { FileIcon } from 'lucide-react';
+import { FileIcon, QuoteIcon } from 'lucide-react';
 import { css } from 'styled-system/css';
 import { dayJs } from '~/shared/lib/date';
+import { usePopoverSelection } from '~/shared/ui/react-dom';
+import { Portal } from '@ark-ui/react';
 
 const MessageBubble = styled('div', {
 	base: {
@@ -139,6 +141,28 @@ const MessagesViewport = reatomComponent(({ children }: PropsWithChildren) => {
 
 	const scrollableRef = useRef<HTMLDivElement>(null);
 	useViewportScrollRestoration(scrollableRef);
+	const { popover, getLatestSelection } = usePopoverSelection(scrollableRef);
+
+	const handleClickQuote = wrap((e) => {
+		e.preventDefault();
+		e.stopPropagation();
+
+		const selection = getLatestSelection();
+		if (!selection)
+			return;
+
+		const quotedFragment = selection
+			.split('\n')
+			.map(part => '> ' + part.trim())
+			.join('\n');
+
+		const contentField = model.fields.content;
+		let currentContentValue = contentField.value();
+		if (currentContentValue)
+			currentContentValue += '\n';
+
+		contentField.change(currentContentValue + quotedFragment);
+	});
 
 	return (
 		<VStack
@@ -161,6 +185,27 @@ const MessagesViewport = reatomComponent(({ children }: PropsWithChildren) => {
 			>
 				{children}
 			</VStack>
+
+			<Popover.RootProvider value={popover}>
+				<Portal>
+					<Popover.Positioner>
+						<Popover.Content px='1rem'>
+							<Popover.Arrow>
+								<Popover.ArrowTip />
+							</Popover.Arrow>
+
+							<HStack
+								cursor='pointer'
+								fontWeight='medium'
+								_icon={{ size: '1rem' }}
+								onClick={handleClickQuote}
+							>
+								<QuoteIcon /> Quote
+							</HStack>
+						</Popover.Content>
+					</Popover.Positioner>
+				</Portal>
+			</Popover.RootProvider>
 		</VStack>
 	);
 });
@@ -262,6 +307,18 @@ const ContentRenderer = reatomComponent(({ model }: { model: ContentRendererInpu
 				'& h6': {
 					textStyle: 'xl',
 				},
+				'& blockquote': {
+					display: 'flex',
+					flexDirection: 'column',
+					gap: '0.5rem',
+					whiteSpace: 'break-spaces',
+					background: 'white.a8',
+					padding: '0.5rem',
+					paddingLeft: '1rem',
+					borderLeft: '0.25rem solid {colors.gray.7}',
+					borderRadius: 'l1',
+					marginY: '0.5rem',
+				},
 			}}
 		/>
 	);
@@ -274,7 +331,7 @@ const AttachmentsRenderer = reactMemo(reatomComponent(({ model }: { model: ChatM
 
 	return (
 		<VStack alignItems='start' gap='0.25rem'>
-			<Text textStyle='sm' fontWeight='medium'>
+			<Text textStyle='sm' fontWeight='medium' userSelect='none'>
 				Attachments:
 			</Text>
 
@@ -322,6 +379,7 @@ function AttachmentPreview({ stream }: { stream: FileStream }) {
 			justifyContent='space-between'
 			background='white.a9'
 			gap='0.25rem'
+			userSelect='none'
 		>
 			{meta?.mimeType.startsWith('image/') ? (
 				<styled.img

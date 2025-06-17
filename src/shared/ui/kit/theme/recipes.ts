@@ -14,6 +14,7 @@ import { tooltip } from '../components/tooltip/recipe';
 import { field } from '../components/field/recipe';
 import { menu } from '../components/menu/recipe';
 import { dialog } from '../components/dialog/recipe';
+import { popover } from '../components/popover/recipe';
 
 export const recipes = {
 	text,
@@ -35,4 +36,5 @@ export const slotRecipes = {
 	field,
 	menu,
 	dialog,
+	popover,
 };
