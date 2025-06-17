@@ -76,7 +76,7 @@ export const MessagesViewport = reatomComponent(({ children }: PropsWithChildren
 				height='auto'
 				paddingBottom={attachmentsPresent ? '20rem' : '10rem'}
 				transition='500ms padding ease'
-				gap='1rem'
+				gap='0.5rem'
 			>
 				{children}
 			</VStack>

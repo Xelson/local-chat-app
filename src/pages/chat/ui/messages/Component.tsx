@@ -14,7 +14,7 @@ import { MessagesViewport } from './Viewport';
 export const MessagesStream = reatomComponent(() => {
 	const model = editorFormVariable.get();
 	const { content } = model.fields;
-	const typing = memo(() => content.value().length > 0);
+	const typing = memo(() => content.value().length > 0 && !model.submit.pending());
 
 	const messagesGroup = memo(() => {
 		if (!sidebarChatRoute.exact())

@@ -1,6 +1,5 @@
 import { styled } from 'styled-system/jsx';
 
-
 export const MessageBubble = styled('div', {
 	base: {
 		display: 'flex',
@@ -21,8 +20,8 @@ export const MessageBubble = styled('div', {
 				borderBottomLeftRadius: '0',
 			},
 			user: {
-				alignSelf: 'end',
 				borderBottomRightRadius: '0',
+				alignSelf: 'end',
 			},
 		},
 	},

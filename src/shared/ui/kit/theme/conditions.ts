@@ -14,5 +14,7 @@ export const conditions = {
 		light: ':root &, .light &',
 		invalid: '&:is([aria-invalid])',
 		priority: '&:is(&)',
+		copied: '&:is([data-copied])',
+		groupCopied: '.group:is([data-copied]) &',
 	},
 };

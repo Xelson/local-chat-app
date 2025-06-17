@@ -1,5 +1,5 @@
 'use client';
-import type { Assign } from '@ark-ui/react';
+import { Portal, type Assign } from '@ark-ui/react';
 import { Tooltip } from '@ark-ui/react/tooltip';
 import { type TooltipVariantProps, tooltip } from 'styled-system/recipes';
 import type { ComponentProps, HTMLStyledProps } from 'styled-system/types';
@@ -48,16 +48,19 @@ export interface ComposedProps extends RootProps {
 }
 
 export const Composed = ({ children, label, ...props }: ComposedProps) => (
-	<Root {...props}>
+	<Root lazyMount unmountOnExit {...props}>
 		<Trigger>{children}</Trigger>
-		<Positioner>
-			<Arrow>
-				<ArrowTip />
-			</Arrow>
 
-			<Content>
-				{label}
-			</Content>
-		</Positioner>
+		<Portal>
+			<Positioner>
+				<Arrow>
+					<ArrowTip />
+				</Arrow>
+
+				<Content>
+					{label}
+				</Content>
+			</Positioner>
+		</Portal>
 	</Root>
 );

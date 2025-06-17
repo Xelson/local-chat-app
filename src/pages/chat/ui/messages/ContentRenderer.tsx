@@ -23,6 +23,7 @@ const proseStyle = css.raw({
 	},
 	'& a': {
 		color: 'colorPalette.9',
+		textDecoration: 'underline',
 	},
 	'& h1': {
 		textStyle: '6xl',
