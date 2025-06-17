@@ -1,12 +1,12 @@
 import { createListCollection } from '@ark-ui/react';
 import { reatomComponent, reatomFactoryComponent } from '@reatom/react';
-import { ChevronsUpDownIcon, FileIcon, ImageIcon } from 'lucide-react';
+import { ChevronsUpDownIcon, FileIcon, ImageIcon, SearchIcon } from 'lucide-react';
 import { useMemo, useRef } from 'react';
 import { reatomModelsSelect, type ModelsSelectModel } from '~/entities/llm';
-import { Heading, Select, Skeleton, Text, Tooltip } from '~/shared/ui/kit/components';
+import { Heading, Select, Skeleton, Text, TextField, Tooltip } from '~/shared/ui/kit/components';
 import { editorFormVariable } from '../model/editor-form';
 import { useScrollPagination } from '~/shared/ui/react-dom';
-import { HStack } from 'styled-system/jsx';
+import { Center, HStack } from 'styled-system/jsx';
 import { match } from 'ts-pattern';
 import { css } from 'styled-system/css';
 import { spawn, withComputed } from '@reatom/core';
@@ -37,7 +37,10 @@ export const ModelSelect = reatomFactoryComponent(() => {
 					const selectedId = value[0];
 					formModel.fields.modelId.change(selectedId);
 				}}
-				onExitComplete={() => selectModel.limit.set(15)}
+				onExitComplete={() => {
+					selectModel.limit.set(15);
+					selectModel.search.set('');
+				}}
 				lazyMount
 				unmountOnExit
 			>
@@ -49,7 +52,10 @@ export const ModelSelect = reatomFactoryComponent(() => {
 						</Select.Trigger>
 					</Select.Control>
 				</Skeleton>
-				<Select.Positioner>
+				<Select.Positioner
+					width='full'
+					maxWidth='30rem'
+				>
 					<SelectContent
 						model={selectModel}
 					/>
@@ -80,11 +86,19 @@ const SelectContent = reatomComponent(({ model: selectModel }: { model: ModelsSe
 		<Select.Content
 			ref={contentRef}
 			maxHeight='20rem'
-			maxWidth='30rem'
 			overflowY='auto'
+			width='full'
+			maxWidth='inherit'
 		>
 			<Select.ItemGroup>
-				<Select.ItemGroupLabel>Available models</Select.ItemGroupLabel>
+				<SearchField model={selectModel} />
+
+				{!results?.length && (
+					<Center width='full' paddingY='3rem'>
+						<Text color='fg.muted'>No results found</Text>
+					</Center>
+				)}
+
 				{results?.map(item => (
 					<Select.Item
 						key={item.id}
@@ -134,6 +148,26 @@ const SelectContent = reatomComponent(({ model: selectModel }: { model: ModelsSe
 				))}
 			</Select.ItemGroup>
 		</Select.Content>
+	);
+});
+
+const SearchField = reatomComponent(({ model }: { model: ModelsSelectModel }) => {
+	return (
+		<TextField.Root
+			width='calc(100% - 1rem)'
+			position='sticky'
+			top='0.25rem'
+			margin='0.5rem auto'
+			borderRadius='l1'
+			value={model.search()}
+			onValueChange={model.search.set}
+		>
+			<TextField.Element>
+				<SearchIcon />
+			</TextField.Element>
+
+			<TextField.Input placeholder='Search models...' />
+		</TextField.Root>
 	);
 });
 

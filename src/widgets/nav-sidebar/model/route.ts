@@ -1,8 +1,7 @@
-import { reatomRoute } from '@reatom/core';
+import { effect, reatomRoute } from '@reatom/core';
 import { z } from 'zod/v4';
 import { account } from '~/entities/account';
-import { reatomChatsList } from '~/entities/chat';
-import { invariant } from '~/shared/lib/asserts';
+import { Chat, reatomChatsList } from '~/entities/chat';
 
 export const sidebarRoute = reatomRoute({
 	path: '',
@@ -28,6 +27,8 @@ export const sidebarChatRoute = sidebarRoute.route({
 			return;
 
 		const { chatsList } = loaderData;
-		return { chat: chatsList.items()?.find(chat => chat?.id === chatId) };
+		const chat = chatsList.items()?.find(chat => chat?.id === chatId);
+
+		return { chat };
 	},
 });

@@ -3,7 +3,6 @@ import {
 	atom,
 	computed,
 	experimental_fieldArray,
-	noop,
 	reatomField,
 	reatomForm,
 	reatomMap,
@@ -24,7 +23,6 @@ import { invariant } from '~/shared/lib/asserts';
 import { sidebarChatRoute } from '~/widgets/nav-sidebar';
 import type { Modality } from '../api/fetch-models';
 import { startCompletion } from './completion';
-import { APICallError } from 'ai';
 
 export type EditorFormModel = ReturnType<typeof reatomEditorForm>;
 
@@ -36,6 +34,7 @@ export const reatomEditorForm = (owner: Account | Group, name: string) => {
 	}, {
 		name,
 		validateOnChange: true,
+		resetOnSubmit: false,
 		onSubmit: async ({ modelId, content }) => {
 			const matched = sidebarChatRoute.exact();
 			const attachmentStreams = attachmentModels()
@@ -167,10 +166,24 @@ export const reatomEditorForm = (owner: Account | Group, name: string) => {
 		return modalities;
 	}, `${name}.usedModalities`);
 
+	const submitPending = computed(() => {
+		return !!form.submit.pending()
+			|| (sidebarChatRoute.exact() && sidebarChatRoute.loader.data()?.chat?.completionRunning())
+			|| attachmentModels().some(model => model.uploadProgress() != 1);
+	}, `${name}.submitPending`);
+
+	const submitDisabled = computed(() => {
+		return submitPending() || (
+			!form.fields.content.focus().dirty && !form.fields.attachments.array().length
+		);
+	}, `${name}.submitDisabled`);
+
 	return assign(form, {
 		attachmentModels,
 		supportedInputModalities,
 		usedModalities,
+		submitPending,
+		submitDisabled,
 	});
 };
 

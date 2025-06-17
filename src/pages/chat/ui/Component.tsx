@@ -26,7 +26,7 @@ export const Component = reatomFactoryComponent(() => {
 		<reatomContext.Provider value={frame}>
 			<HStack size='full' gap='1rem'>
 				<Sidebar
-					onClickAddChat={() => {
+					onShouldFocusChatInput={() => {
 						model.fields.content.elementRef()?.focus();
 					}}
 				/>

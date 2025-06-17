@@ -2,7 +2,7 @@ import { Divider, HStack, VStack } from 'styled-system/jsx';
 import { FileUpload, IconButton, Progress, Spinner, Text, TextField } from '~/shared/ui/kit/components';
 import { sidebarChatRoute } from '~/widgets/nav-sidebar';
 import { ModelSelect } from './ModelSelect';
-import { ArrowUpIcon, File, PaperclipIcon, PlusIcon, Trash2Icon } from 'lucide-react';
+import { ArrowUpIcon, FileIcon, PaperclipIcon, PlusIcon, Trash2Icon } from 'lucide-react';
 import { addCallHook, memo, wrap } from '@reatom/core';
 import { editorFormVariable, type AttachmentModel } from '../model/editor-form';
 import { reatomComponent } from '@reatom/react';
@@ -204,7 +204,7 @@ const AttachmentUploadItem = reatomComponent(({ model }: { model: AttachmentMode
 					<FileUpload.ItemPreviewImage />
 				))
 				.otherwise(() => (
-					<File
+					<FileIcon
 						className={css({
 							size: '4rem',
 							marginBottom: 'auto',
@@ -248,10 +248,8 @@ const AttachmentUploadProgress = reatomComponent(({ model }: { model: Attachment
 
 const InputPanelSubmitButton = reatomComponent(() => {
 	const model = editorFormVariable.get();
-	const pending = !!model.submit.pending() || (
-		(sidebarChatRoute.exact() && sidebarChatRoute.loader.data()?.chat?.completionRunning())
-	);
-	const disabled = !model.focus().dirty || pending;
+	const pending = model.submitPending();
+	const disabled = model.submitDisabled();
 	const submit = wrap(model.submit);
 
 	return (

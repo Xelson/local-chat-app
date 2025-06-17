@@ -1,16 +1,21 @@
 import { memo, reatomMap } from '@reatom/core';
 import { reatomComponent } from '@reatom/react';
-import { Center, HStack, styled, VStack } from 'styled-system/jsx';
+import { HStack, styled, VStack } from 'styled-system/jsx';
 import { editorFormVariable } from '../model/editor-form';
 import { useMemo } from 'react';
-import { Skeleton, Spinner } from '~/shared/ui/kit/components';
+import { Skeleton, Spinner, Text } from '~/shared/ui/kit/components';
 import { sidebarChatRoute } from '~/widgets/nav-sidebar';
 import type { ChatMessageModel } from '~/entities/chat';
 import { type ContentRenderer, type ContentRendererInput, reatomContentRenderer } from '../model/content-renderer';
 import type { FileStream } from 'jazz-tools';
+import { FileIcon } from 'lucide-react';
+import { css } from 'styled-system/css';
 
 const MessageBubble = styled('div', {
 	base: {
+		display: 'flex',
+		flexDirection: 'column',
+		gap: '1rem',
 		paddingY: '0.5rem',
 		paddingX: '1rem',
 		backgroundColor: 'colorPalette.4',
@@ -57,6 +62,7 @@ export const MessagesStream = reatomComponent(() => {
 				alignItems='start'
 				height='auto'
 				paddingBottom='10rem'
+				gap='1rem'
 			>
 				{matched && messages && messages.map(message => (
 					<MessageRenderer
@@ -114,7 +120,7 @@ const ContentRenderer = reatomComponent(({ model }: { model: ContentRendererInpu
 
 	if (!html) {
 		const rawText = model()?.toString();
-		return rawText ? <Skeleton loading>{rawText}</Skeleton> : <Spinner size='sm' />;
+		return rawText ? <Skeleton loading>{rawText}</Skeleton> : <Spinner size='sm' my='auto' />;
 	}
 
 	return (
@@ -165,16 +171,24 @@ const ContentRenderer = reatomComponent(({ model }: { model: ContentRendererInpu
 
 const AttachmentsRenderer = reatomComponent(({ model }: { model: ChatMessageModel }) => {
 	const attachments = model.attachments();
-	if (!attachments)
+	if (!attachments || !attachments.length)
 		return null;
 
 	return (
 		<HStack>
 			{attachments.map(stream => (
-				<AttachmentPreview
-					key={stream.id}
-					stream={stream}
-				/>
+				stream ? (
+					<AttachmentPreview
+						key={stream.id}
+						stream={stream}
+					/>
+				) : (
+					<Skeleton
+						loading
+						size='8rem'
+						borderRadius='l2'
+					/>
+				)
 			))}
 		</HStack>
 	);
@@ -182,16 +196,54 @@ const AttachmentsRenderer = reatomComponent(({ model }: { model: ChatMessageMode
 
 const streamToUrlMap = reatomMap<string, string>(undefined, 'streamToUrlMap');
 
+const fileSizeFormatter = Intl.NumberFormat('en', {
+	notation: 'compact',
+	style: 'unit',
+	unit: 'byte',
+	unitDisplay: 'narrow',
+});
+
 function AttachmentPreview({ stream }: { stream: FileStream }) {
+	const meta = stream.getMetadata();
 	const url = streamToUrlMap.getOrCreate(stream.id, () => URL.createObjectURL(stream.toBlob() ?? new Blob()));
 
 	return (
-		<Center
+		<VStack
 			size='8rem'
 			borderRadius='l2'
 			border='default'
+			padding='0.5rem'
+			alignItems='start'
+			flexDirection='column'
+			justifyContent='space-between'
+			background='white.a9'
+			gap='0.25rem'
 		>
+			{meta?.mimeType.startsWith('image/') ? (
+				<styled.img
+					size='4.5rem'
+					borderRadius='l1'
+					src={url}
+				/>
+			) : (
+				<FileIcon
+					className={css({
+						size: '4.5rem',
+						marginBottom: 'auto',
+						strokeWidth: '1',
+						color: 'colorPalette.7',
+					})}
+				/>
+			)}
 
-		</Center>
+			<VStack alignItems='start' gap='0' width='full'>
+				<Text truncate maxW='full' textStyle='sm' fontWeight='medium'>
+					{meta?.fileName}
+				</Text>
+				<Text textStyle='xs' color='fg.muted'>
+					{fileSizeFormatter.format(meta?.totalSizeBytes ?? 0)}
+				</Text>
+			</VStack>
+		</VStack>
 	);
 }

@@ -1,6 +1,6 @@
 import { reatomComponent } from '@reatom/react';
 import { Divider, VStack } from 'styled-system/jsx';
-import { sidebarRoute } from '../model/route';
+import { sidebarChatRoute, sidebarRoute } from '../model/route';
 import { Button, Heading, Text } from '~/shared/ui/kit/components';
 import { PlusIcon } from 'lucide-react';
 import { BrandLogo } from '~/entities/branding';
@@ -9,10 +9,10 @@ import { ChatItem } from './ChatItem';
 import { peek } from '@reatom/core';
 
 interface ComponentProps {
-	onClickAddChat?: () => void;
+	onShouldFocusChatInput?: () => void;
 }
 
-export const Component = reatomComponent(({ onClickAddChat }: ComponentProps) => {
+export const Component = reatomComponent(({ onShouldFocusChatInput }: ComponentProps) => {
 	const loaderData = sidebarRoute.loader.data();
 	const loadedChatItems = loaderData?.chatsList.items();
 
@@ -51,7 +51,7 @@ export const Component = reatomComponent(({ onClickAddChat }: ComponentProps) =>
 				colorPalette='purple'
 				width='full'
 				borderRadius='l2'
-				onClick={onClickAddChat}
+				onClick={onShouldFocusChatInput}
 				asChild
 			>
 				<a href='/'>
@@ -93,6 +93,11 @@ export const Component = reatomComponent(({ onClickAddChat }: ComponentProps) =>
 									const chatIndex = co.findIndex(item => item?.id === model?.id);
 									if (chatIndex !== -1)
 										co.splice(chatIndex, 1);
+
+									if (peek(sidebarChatRoute)?.chatId === model.id) {
+										sidebarRoute.go();
+										onShouldFocusChatInput?.();
+									}
 								}
 							}}
 						/>
