@@ -38,7 +38,7 @@ export const InputPanel = reatomComponent(() => {
 					shadow='sm'
 					transition='200ms all ease'
 				>
-					<Collapsible.Content>
+					<Collapsible.Content overflowX='auto'>
 						<InputPanelAttachmentItems />
 					</Collapsible.Content>
 
@@ -145,7 +145,7 @@ const InputPanelAttachmentsFileUpload = reatomComponent((props: FileUpload.RootP
 
 	return (
 		<FileUpload.Root
-			maxFiles={6}
+			maxFiles={20}
 			{...props}
 			accept={mimeType}
 			onFileAccept={({ files }) => {
@@ -161,7 +161,7 @@ const InputPanelAttachmentItems = reatomComponent(() => {
 	const attachments = model.attachmentModels();
 
 	return (
-		<FileUpload.ItemGroup flexDir='row' flexWrap='wrap' mb='0.5rem'>
+		<FileUpload.ItemGroup flexDir='row' mb='0.5rem'>
 			{attachments.map(model => (
 				<AttachmentUploadItem
 					key={model.name}

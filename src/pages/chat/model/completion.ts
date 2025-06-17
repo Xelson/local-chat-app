@@ -1,4 +1,4 @@
-import { action, withAsync, wrap } from '@reatom/core';
+import { action, computed, take, withAsync, wrap } from '@reatom/core';
 import { CoPlainText } from 'jazz-tools';
 import { openrouterApiKey } from '~/entities/account';
 import { ChatMessage, type ChatModel } from '~/entities/chat';
@@ -7,10 +7,15 @@ import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { APICallError, streamText, type CoreMessage, type UserContent } from 'ai';
 import type { co } from 'jazz-tools';
 import { match } from 'ts-pattern';
-import type { FileStream } from 'jazz-tools';
+import { FileStream } from 'jazz-tools';
+
+const deepTake = <Return>(computer: () => Return) => take(computed(computer));
 
 export const startCompletion = action(async (chat: ChatModel, modelId: string) => {
-	const lastMessageCo = chat.lastMessage()?.loaded();
+	const lastMessageCo
+		= chat.lastMessage()?.loaded()
+		?? await wrap(deepTake(() => chat.lastMessage()?.loaded()));
+
 	invariant(lastMessageCo, 'lastMessage CO is not available');
 
 	const chatCo = chat.loaded();

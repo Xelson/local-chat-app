@@ -3,6 +3,7 @@ import {
 	atom,
 	computed,
 	experimental_fieldArray,
+	named,
 	reatomField,
 	reatomForm,
 	reatomMap,
@@ -64,8 +65,6 @@ export const reatomEditorForm = (owner: Account | Group, name: string) => {
 				invariant(me, 'Account is not available');
 
 				me.root.chats?.push(chat);
-				await message.waitForSync();
-				await me.root.chats?.waitForSync();
 
 				chatModel = reatomChat(chat.id, { loadAs: me, name: `chatForCompletion.${chat.id}` });
 
@@ -104,7 +103,7 @@ export const reatomEditorForm = (owner: Account | Group, name: string) => {
 	form.submit.extend(
 		withCallHook(() => {
 			form.fields.content.reset();
-			form.fields.attachments.reset();
+			form.fields.attachments.clear();
 		}),
 	);
 
@@ -141,7 +140,7 @@ export const reatomEditorForm = (owner: Account | Group, name: string) => {
 	const attachmentModels = computed(() => form.fields.attachments.array().map((model) => {
 		const file = model.value();
 		return fileModelsCache.getOrCreate(file, () => (
-			reatomAttachmentModel(file, { owner, name: `${name}.attachmentModels` })
+			reatomAttachmentModel(file, { owner, name: named(`${name}.attachmentModels`) })
 		));
 	}), `${name}.attachmentModels`);
 

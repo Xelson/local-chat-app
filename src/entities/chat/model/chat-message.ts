@@ -15,6 +15,7 @@ export type ChatMessageModel = {
 	attachments: Computed<(FileStream | null)[] | undefined>;
 	prev: Computed<ChatMessageModel | undefined | null>;
 	loaded: Computed<Loaded | undefined>;
+	createdAt: Computed<Date | undefined>;
 };
 
 export const reatomChatMessage = (
@@ -59,6 +60,11 @@ export const reatomChatMessage = (
 
 	const attachments = syncAttachments.data;
 
+	const createdAt = computed(() => {
+		const createdAt = loaded()?._createdAt;
+		return createdAt ? new Date(createdAt) : undefined;
+	}, `${name}.createdAt`);
+
 	return {
 		id,
 		role,
@@ -67,6 +73,7 @@ export const reatomChatMessage = (
 		streaming,
 		answeredByModel,
 		prev,
+		createdAt,
 		loaded,
 	};
 };

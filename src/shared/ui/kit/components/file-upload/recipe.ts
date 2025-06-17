@@ -27,6 +27,7 @@ export const fileUpload = defineSlotRecipe({
 			minHeight: 'xs',
 			px: '6',
 			py: '4',
+			flexShrink: '0',
 		},
 		item: {
 			position: 'relative',
@@ -40,6 +41,7 @@ export const fileUpload = defineSlotRecipe({
 			padding: '0.5rem',
 			size: '8rem',
 			maxWidth: 'full',
+			flexShrink: '0',
 		},
 		itemGroup: {
 			display: 'flex',
