@@ -3,7 +3,7 @@ import { FileUpload, IconButton, Progress, Spinner, Text, TextField } from '~/sh
 import { sidebarChatRoute } from '~/widgets/nav-sidebar';
 import { ModelSelect } from './ModelSelect';
 import { ArrowUpIcon, FileIcon, PaperclipIcon, PlusIcon, Trash2Icon } from 'lucide-react';
-import { addCallHook, memo, wrap } from '@reatom/core';
+import { addCallHook, memo, peek, wrap } from '@reatom/core';
 import { editorFormVariable, type AttachmentModel } from '../model/editor-form';
 import { reatomComponent } from '@reatom/react';
 import { useFormField } from '~/shared/ui/reatom';
@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import { Collapsible } from '~/shared/ui/kit/components/collapsible';
 import { match } from 'ts-pattern';
 import { css } from 'styled-system/css';
+import { useFileUploadContext } from '@ark-ui/react';
 
 export const InputPanel = reatomComponent(() => {
 	const model = editorFormVariable.get();
@@ -65,14 +66,7 @@ export const InputPanel = reatomComponent(() => {
 
 const InputPanelAttachmentsButton = reatomComponent(() => {
 	const model = editorFormVariable.get();
-	const modalities = model.supportedInputModalities();
-
-	if (!modalities?.length)
-		return null;
-
-	const supportsImages = modalities.includes('image');
-	const supportsFiles = modalities.includes('file');
-	if (!supportsImages && !supportsFiles)
+	if (!model.supportedInputModalities.files())
 		return null;
 
 	return (
@@ -85,6 +79,7 @@ const InputPanelAttachmentsButton = reatomComponent(() => {
 });
 
 const InputPanelConentInput = reatomComponent(() => {
+	const uploader = useFileUploadContext();
 	const model = editorFormVariable.get();
 	const { value, setValue, getFieldProps } = useFormField(model.fields.content);
 	const [version, setVersion] = useState(0);
@@ -113,6 +108,10 @@ const InputPanelConentInput = reatomComponent(() => {
 						e.preventDefault();
 						model.submit();
 					}
+				}}
+				onPaste={(e) => {
+					if (e.clipboardData?.files && peek(model.supportedInputModalities.files))
+						uploader.setFiles([...uploader.acceptedFiles, ...Array.from(e.clipboardData.files)]);
 				}}
 			/>
 		</TextField.Root>

@@ -100,7 +100,7 @@ export const reatomEditorForm = (owner: Account | Group, name: string) => {
 		},
 	});
 
-	form.submit.extend(
+	form.submit.onFulfill.extend(
 		withCallHook(() => {
 			form.fields.content.reset();
 			form.fields.attachments.clear();
@@ -147,7 +147,14 @@ export const reatomEditorForm = (owner: Account | Group, name: string) => {
 	const supportedInputModalities = computed(() => {
 		const modelId = form.fields.modelId.value();
 		return modelsListQuery.data()?.find(item => item.id === modelId)?.architecture.input_modalities;
-	}, `${name}.supportedInputModalities`);
+	}, `${name}.supportedInputModalities`).extend(
+		target => ({
+			files: computed(() => {
+				const modalities = target();
+				return modalities && (modalities.includes('file') || modalities.includes('image'));
+			}, `${target.name}.files`),
+		}),
+	);
 
 	const usedModalities = computed(() => {
 		const attachments = form.fields.attachments.array();

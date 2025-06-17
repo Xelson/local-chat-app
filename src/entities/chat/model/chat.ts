@@ -16,6 +16,7 @@ export type ChatModel = {
 	branches: Computed<ChatBranchesModel | null | undefined>;
 	currentModelId: Computed<string | undefined>;
 	loaded: Computed<ChatLoaded | undefined>;
+	lastScrollPosition: number;
 };
 
 export const reatomChat = (
@@ -85,6 +86,7 @@ export const reatomChat = (
 		completionRunning,
 		branches,
 		loaded,
+		lastScrollPosition: 0,
 	};
 };
 

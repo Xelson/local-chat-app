@@ -89,6 +89,9 @@ const mapChatMessageToAiFormat = async (message: co.loaded<typeof ChatMessage>) 
 			content.push({ type: 'text', text });
 
 		const prepareAttachment = async (stream: FileStream) => {
+			if (!stream?.toBlob)
+				stream = await FileStream.load(stream.id) ?? stream;
+
 			const blob = stream.toBlob();
 			invariant(blob, `failed to convert attachment ${stream.id} to blob`);
 

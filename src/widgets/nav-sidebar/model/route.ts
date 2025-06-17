@@ -1,7 +1,7 @@
-import { effect, reatomRoute } from '@reatom/core';
+import { reatomRoute } from '@reatom/core';
 import { z } from 'zod/v4';
 import { account } from '~/entities/account';
-import { Chat, reatomChatsList } from '~/entities/chat';
+import { reatomChatsList } from '~/entities/chat';
 
 export const sidebarRoute = reatomRoute({
 	path: '',

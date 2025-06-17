@@ -1,8 +1,8 @@
-import { memo, peek, reatomMap } from '@reatom/core';
+import { memo, reatomMap } from '@reatom/core';
 import { reatomComponent } from '@reatom/react';
 import { HStack, styled, VStack } from 'styled-system/jsx';
 import { editorFormVariable } from '../model/editor-form';
-import { useMemo, memo as reactMemo, type PropsWithChildren } from 'react';
+import { useMemo, memo as reactMemo, type PropsWithChildren, useLayoutEffect, useRef, type RefObject } from 'react';
 import { Badge, Skeleton, Spinner, Text } from '~/shared/ui/kit/components';
 import { sidebarChatRoute } from '~/widgets/nav-sidebar';
 import type { ChatMessageModel } from '~/entities/chat';
@@ -72,16 +72,18 @@ export const MessagesStream = reatomComponent(() => {
 					position='relative'
 					alignItems='start'
 					gap='inherit'
+					width='full'
 				>
 					<Badge
 						position='sticky'
-						top='0.25rem'
+						top='0'
 						marginX='auto'
 						variant='solid'
 						color='fg.default'
 						backgroundColor='black.a1'
-						backdropFilter='blur(1rem)'
+						backdropFilter='blur(0.3rem)'
 						pointerEvents='none'
+						zIndex='banner'
 					>
 						{dayJs().calendar(date, {
 							sameDay: '[Today], DD.MM.YYYY',
@@ -110,12 +112,37 @@ export const MessagesStream = reatomComponent(() => {
 	);
 });
 
+const useViewportScrollRestoration = (ref: RefObject<HTMLDivElement | null>) => {
+	const chat = sidebarChatRoute.exact() ? sidebarChatRoute.loader.data()?.chat : undefined;
+
+	useLayoutEffect(() => {
+		const scrollableEl = ref.current;
+		if (!chat || !scrollableEl)
+			return;
+
+		if (chat.lastScrollPosition)
+			scrollableEl.scrollTop = chat.lastScrollPosition;
+
+		const controller = new AbortController();
+
+		scrollableEl.addEventListener('scroll', () => {
+			chat.lastScrollPosition = scrollableEl.scrollTop;
+		}, controller);
+
+		return () => controller.abort();
+	}, [ref, chat]);
+};
+
 const MessagesViewport = reatomComponent(({ children }: PropsWithChildren) => {
 	const model = editorFormVariable.get();
 	const attachmentsPresent = memo(() => model.fields.attachments().size > 0);
 
+	const scrollableRef = useRef<HTMLDivElement>(null);
+	useViewportScrollRestoration(scrollableRef);
+
 	return (
 		<VStack
+			ref={scrollableRef}
 			height='auto'
 			size='full'
 			flexDirection='column-reverse'
