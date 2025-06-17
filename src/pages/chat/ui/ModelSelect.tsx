@@ -9,13 +9,17 @@ import { useScrollPagination } from '~/shared/ui/react-dom';
 import { HStack } from 'styled-system/jsx';
 import { match } from 'ts-pattern';
 import { css } from 'styled-system/css';
-import { spawn } from '@reatom/core';
+import { spawn, withComputed } from '@reatom/core';
 
 export const ModelSelect = reatomFactoryComponent(() => {
+	const formModel = editorFormVariable.get();
 	const selectModel = reatomModelsSelect({ limit: 15 }, 'modelsSelect');
 
+	selectModel.selectedModelId.extend(
+		withComputed(() => formModel.fields.modelId.value()),
+	);
+
 	return () => {
-		const formModel = editorFormVariable.get();
 		const selectedModelId = formModel.fields.modelId.value();
 		const results = selectModel.data();
 
@@ -32,7 +36,6 @@ export const ModelSelect = reatomFactoryComponent(() => {
 				onValueChange={({ value }) => {
 					const selectedId = value[0];
 					formModel.fields.modelId.change(selectedId);
-					selectModel.selectedModelId.set(selectedId);
 				}}
 				onExitComplete={() => selectModel.limit.set(15)}
 				lazyMount

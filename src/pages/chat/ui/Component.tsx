@@ -5,7 +5,6 @@ import { editorFormVariable, reatomEditorForm } from '../model/editor-form';
 import { reatomContext, reatomFactoryComponent } from '@reatom/react';
 import { Group } from 'jazz-tools';
 import { MessagesStream } from './MessagesStream';
-import { sidebarRoute } from '~/widgets/nav-sidebar/model/route';
 import { InputPanel } from './InputPanel';
 
 export const Component = reatomFactoryComponent(() => {
@@ -29,7 +28,6 @@ export const Component = reatomFactoryComponent(() => {
 				<Sidebar
 					onClickAddChat={() => {
 						model.fields.content.elementRef()?.focus();
-						// sidebarRoute.go();
 					}}
 				/>
 
@@ -42,7 +40,7 @@ export const Component = reatomFactoryComponent(() => {
 						position='relative'
 						alignItems='start'
 						width='full'
-						maxWidth='50rem'
+						maxWidth='60rem'
 						marginX='1rem'
 					>
 						<MessagesStream />

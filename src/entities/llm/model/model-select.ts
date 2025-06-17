@@ -19,7 +19,7 @@ export const reatomModelsSelect = (options: ModelsSelectOptions = {}, name: stri
 
 		await wrap(sleep(300));
 
-		const data = modelsListQuery.data();
+		const data = modelsListQuery.data()?.slice();
 		if (data && selectedId !== null) {
 			const elementIndex = data.findIndex(item => item.id === selectedId);
 			if (elementIndex != -1) {
@@ -30,8 +30,10 @@ export const reatomModelsSelect = (options: ModelsSelectOptions = {}, name: stri
 
 		return data
 			?.filter(item => (
-				item.name.toLowerCase().includes(searchQuery)
-				|| item.description.toLowerCase().includes(searchQuery)
+				!searchQuery || (
+					item.name.toLowerCase().includes(searchQuery)
+					|| item.description.toLowerCase().includes(searchQuery)
+				)
 			))
 			.slice(0, lim);
 	}, `${name}.filteredQuery`).extend(

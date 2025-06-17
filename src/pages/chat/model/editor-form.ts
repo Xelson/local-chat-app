@@ -3,6 +3,7 @@ import {
 	atom,
 	computed,
 	experimental_fieldArray,
+	noop,
 	reatomField,
 	reatomForm,
 	reatomMap,
@@ -16,12 +17,14 @@ import {
 
 import type { Account, Group } from 'jazz-tools';
 import { co, CoPlainText } from 'jazz-tools';
-import { account, jazzContext } from '~/entities/account';
-import { Chat, ChatBranchesList, ChatMessage } from '~/entities/chat';
+import { account } from '~/entities/account';
+import { Chat, ChatBranchesList, ChatMessage, reatomChat } from '~/entities/chat';
 import { modelsListQuery } from '~/entities/llm';
 import { invariant } from '~/shared/lib/asserts';
 import { sidebarChatRoute } from '~/widgets/nav-sidebar';
 import type { Modality } from '../api/fetch-models';
+import { startCompletion } from './completion';
+import { APICallError } from 'ai';
 
 export type EditorFormModel = ReturnType<typeof reatomEditorForm>;
 
@@ -38,6 +41,8 @@ export const reatomEditorForm = (owner: Account | Group, name: string) => {
 			const attachmentStreams = attachmentModels()
 				.map(m => m.stream.data())
 				.filter((item): item is NonNullable<typeof item> => !!item);
+
+			let chatModel;
 
 			if (!matched) {
 				const message = ChatMessage.create({
@@ -56,18 +61,25 @@ export const reatomEditorForm = (owner: Account | Group, name: string) => {
 					currentModelId: modelId,
 				});
 
-				account()?.root.chats?.push(chat);
+				const me = account();
+				invariant(me, 'Account is not available');
+
+				me.root.chats?.push(chat);
+				await message.waitForSync();
+				await me.root.chats?.waitForSync();
+
+				chatModel = reatomChat(chat.id, { loadAs: me, name: `chatForCompletion.${chat.id}` });
 
 				sidebarChatRoute.go({ chatId: chat.id });
 			}
 			else {
 				const data = sidebarChatRoute.loader.data();
-				const currentChat = data?.chat;
+				chatModel = data?.chat;
 
-				invariant(currentChat !== undefined, 'Chat is not loaded yet');
-				invariant(currentChat !== null, 'Chat is not available');
+				invariant(chatModel !== undefined, 'Chat is not loaded yet');
+				invariant(chatModel !== null, 'Chat is not available');
 
-				const co = currentChat.loaded();
+				const co = chatModel.loaded();
 				invariant(co?.lastMessage, 'Cannot fetch lastMessage of the chat');
 
 				const message = ChatMessage.create({
@@ -80,9 +92,22 @@ export const reatomEditorForm = (owner: Account | Group, name: string) => {
 
 				if (co)
 					co.lastMessage = message;
+
+				await co.waitForSync();
 			}
+
+			startCompletion(chatModel, modelId).catch((error) => {
+				alert(error.message);
+			});
 		},
 	});
+
+	form.submit.extend(
+		withCallHook(() => {
+			form.fields.content.reset();
+			form.fields.attachments.reset();
+		}),
+	);
 
 	form.submit.onFulfill.extend(
 		withCallHook(() => {

@@ -1,12 +1,13 @@
-import { memo } from '@reatom/core';
+import { memo, reatomMap } from '@reatom/core';
 import { reatomComponent } from '@reatom/react';
-import { styled, VStack } from 'styled-system/jsx';
+import { Center, HStack, styled, VStack } from 'styled-system/jsx';
 import { editorFormVariable } from '../model/editor-form';
 import { useMemo } from 'react';
 import { Skeleton, Spinner } from '~/shared/ui/kit/components';
 import { sidebarChatRoute } from '~/widgets/nav-sidebar';
 import type { ChatMessageModel } from '~/entities/chat';
 import { type ContentRenderer, type ContentRendererInput, reatomContentRenderer } from '../model/content-renderer';
+import type { FileStream } from 'jazz-tools';
 
 const MessageBubble = styled('div', {
 	base: {
@@ -15,6 +16,8 @@ const MessageBubble = styled('div', {
 		backgroundColor: 'colorPalette.4',
 		borderRadius: 'l3',
 		maxWidth: 'full',
+		minHeight: '2.5rem',
+		flexShrink: '0',
 	},
 	variants: {
 		role: {
@@ -41,12 +44,19 @@ export const MessagesStream = reatomComponent(() => {
 
 	return (
 		<VStack
+			height='auto'
 			size='full'
 			flexDirection='column-reverse'
+			overflowY='auto'
+			scrollbarWidth='none'
+			marginTop='-1rem'
+			paddingTop='1rem'
 		>
 			<VStack
 				size='full'
 				alignItems='start'
+				height='auto'
+				paddingBottom='10rem'
 			>
 				{matched && messages && messages.map(message => (
 					<MessageRenderer
@@ -77,7 +87,9 @@ const MessageRenderer = reatomComponent(({ model }: { model: ChatMessageModel })
 	return (
 		<Skeleton loading={!textModel} asChild>
 			<MessageBubble role={role}>
-				{textModel ? <ContentRenderer model={textModel} /> : <Spinner size='sm' />}
+				{textModel && <ContentRenderer model={textModel} />}
+
+				<AttachmentsRenderer model={model} />
 			</MessageBubble>
 		</Skeleton>
 	);
@@ -89,7 +101,7 @@ const useCachedContentRenderer = (input: ContentRendererInput) => {
 	return useMemo(() => {
 		let renderer = contentRenderersCache.get(input);
 		if (!renderer) {
-			renderer = reatomContentRenderer(input, 'contentRenderer');
+			renderer = reatomContentRenderer(input, '_contentRenderer');
 			contentRenderersCache.set(input, renderer);
 		}
 		return renderer;
@@ -100,8 +112,10 @@ const ContentRenderer = reatomComponent(({ model }: { model: ContentRendererInpu
 	const renderer = useCachedContentRenderer(model);
 	const html = renderer();
 
-	if (!html)
-		return <Skeleton loading>{model()?.toString()}</Skeleton>;
+	if (!html) {
+		const rawText = model()?.toString();
+		return rawText ? <Skeleton loading>{rawText}</Skeleton> : <Spinner size='sm' />;
+	}
 
 	return (
 		<styled.div
@@ -118,6 +132,7 @@ const ContentRenderer = reatomComponent(({ model }: { model: ContentRendererInpu
 					overflowX: 'auto',
 					minWidth: '3rem',
 					minHeight: '3rem',
+					position: 'relative',
 				},
 				'& img': {
 					maxWidth: '10rem',
@@ -147,3 +162,36 @@ const ContentRenderer = reatomComponent(({ model }: { model: ContentRendererInpu
 		/>
 	);
 });
+
+const AttachmentsRenderer = reatomComponent(({ model }: { model: ChatMessageModel }) => {
+	const attachments = model.attachments();
+	if (!attachments)
+		return null;
+
+	return (
+		<HStack>
+			{attachments.map(stream => (
+				<AttachmentPreview
+					key={stream.id}
+					stream={stream}
+				/>
+			))}
+		</HStack>
+	);
+});
+
+const streamToUrlMap = reatomMap<string, string>(undefined, 'streamToUrlMap');
+
+function AttachmentPreview({ stream }: { stream: FileStream }) {
+	const url = streamToUrlMap.getOrCreate(stream.id, () => URL.createObjectURL(stream.toBlob() ?? new Blob()));
+
+	return (
+		<Center
+			size='8rem'
+			borderRadius='l2'
+			border='default'
+		>
+
+		</Center>
+	);
+}

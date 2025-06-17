@@ -1,17 +1,7 @@
-import { co, CoPlainText, type Account, type AnonymousJazzAgent } from 'jazz-tools';
+import { co, FileStream, type Account, type AnonymousJazzAgent } from 'jazz-tools';
 import { ChatMessage } from './schema';
 import { atom, computed, withConnectHook, type Computed, reatomMap } from '@reatom/core';
-
-type PlainTextModel = ReturnType<typeof reatomPlainText>;
-
-export const reatomPlainText = (
-	id: string,
-	{ loadAs, name }: { loadAs: Account | AnonymousJazzAgent; name: string },
-) => {
-	return atom<CoPlainText | undefined>(undefined, `${name}.loaded`).extend(
-		withConnectHook(target => co.plainText().subscribe(id, { loadAs }, target.set)),
-	);
-};
+import { reatomPlainText, type PlainTextModel } from './plain-text';
 
 type Loaded = co.loaded<typeof ChatMessage>;
 
@@ -20,8 +10,8 @@ export type ChatMessageModel = {
 	role: Computed<Loaded['role'] | undefined>;
 	streaming: Computed<Loaded['streaming'] | undefined>;
 	answeredByModel: Computed<string | undefined>;
-
 	content: Computed<{ text: PlainTextModel } | undefined | null>;
+	attachments: Computed<FileStream[] | undefined>;
 	prev: Computed<ChatMessageModel | undefined | null>;
 	loaded: Computed<Loaded | undefined>;
 };
@@ -58,10 +48,13 @@ export const reatomChatMessage = (
 		return loadedContent ? { text: getCachedPlainText(loadedContent.id) } : loadedContent;
 	}, `${name}.content`);
 
+	const attachments = computed(() => loaded()?.attachments, `${name}.attachments`);
+
 	return {
 		id,
 		role,
 		content,
+		attachments,
 		streaming,
 		answeredByModel,
 		prev,

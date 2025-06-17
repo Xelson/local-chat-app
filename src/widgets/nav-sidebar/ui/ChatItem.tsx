@@ -1,6 +1,6 @@
 import { reatomComponent } from '@reatom/react';
 import { sidebarChatRoute } from '../model/route';
-import { Button, Dialog, IconButton, Kbd, Menu, Skeleton, Text } from '~/shared/ui/kit/components';
+import { Button, Dialog, IconButton, Kbd, Menu, Skeleton, Spinner, Text } from '~/shared/ui/kit/components';
 import { PinIcon, PinOffIcon, TextCursorIcon, Trash2Icon } from 'lucide-react';
 import { type ChatModel } from '~/entities/chat';
 import { Editable, Portal } from '@ark-ui/react';
@@ -90,6 +90,8 @@ export const ChatItem = reatomComponent(({ model, onRequestDelete }: ChatItemPro
 											<Trash2Icon />
 										</IconButton>
 									</Dialog.Trigger>
+
+									{model && <CompletionSpinner model={model} />}
 								</a>
 							</Menu.ContextTrigger>
 						</Button>
@@ -187,5 +189,21 @@ const DeleteConfirmationDialog = reatomComponent(({ model, children, onConfirm }
 				</Dialog.Positioner>
 			</Portal>
 		</Dialog.Root>
+	);
+});
+
+const CompletionSpinner = reatomComponent(({ model }: { model: ChatModel }) => {
+	const running = model.completionRunning();
+
+	return (
+		<Spinner
+			size='sm'
+			position='absolute'
+			right='0.75rem'
+			opacity={running ? '1' : '0'}
+			_groupHover={{ opacity: '0' }}
+			transition='100ms opacity'
+			pointerEvents='none'
+		/>
 	);
 });

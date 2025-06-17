@@ -2,7 +2,6 @@ import {
 	type AtomLike,
 	atom,
 	computed,
-	peek,
 	throwAbort,
 	sleep,
 	wrap,
@@ -46,7 +45,7 @@ export const reatomContentRenderer = (input: ContentRendererInput, name: string)
 		if (!content)
 			return;
 
-		if (peek(trailing)) throwAbort();
+		if (trailing()) throwAbort();
 
 		try {
 			trailing.set(true);

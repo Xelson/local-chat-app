@@ -23,6 +23,7 @@ export const InputPanel = reatomComponent(() => {
 					position='absolute'
 					left='-1rem'
 					right='-1rem'
+					width='calc(100% + 2rem)'
 					bottom={stickToBottom ? '0' : '50%'}
 					translate='auto'
 					translateY={stickToBottom ? '0%' : '50%'}
@@ -247,7 +248,9 @@ const AttachmentUploadProgress = reatomComponent(({ model }: { model: Attachment
 
 const InputPanelSubmitButton = reatomComponent(() => {
 	const model = editorFormVariable.get();
-	const pending = !!model.submit.pending();
+	const pending = !!model.submit.pending() || (
+		(sidebarChatRoute.exact() && sidebarChatRoute.loader.data()?.chat?.completionRunning())
+	);
 	const disabled = !model.focus().dirty || pending;
 	const submit = wrap(model.submit);
 

@@ -68,6 +68,7 @@ export const Component = reatomComponent(({ onClickAddChat }: ComponentProps) =>
 					: 'linear-gradient(to bottom, #000 calc(100% - 2rem), #0000)'}
 				overflowY='auto'
 				scrollbarWidth='none'
+				gap='0.25rem'
 			>
 				{pinnedChats.length > 0 && (
 					<>
@@ -77,7 +78,7 @@ export const Component = reatomComponent(({ onClickAddChat }: ComponentProps) =>
 						{pinnedChats.map(model => (
 							<ChatItem key={model.id} model={model} />
 						))}
-						<Divider />
+						{chats.length > 0 && <Divider />}
 					</>
 				)}
 

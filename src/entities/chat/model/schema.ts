@@ -1,7 +1,7 @@
 import { co, z, type CoListSchema } from 'jazz-tools';
 
 export const ChatMessage = co.map({
-	role: z.literal(['system', 'developer', 'user', 'assistant', 'tool']),
+	role: z.literal(['system', 'user', 'assistant']),
 	content: co.plainText(),
 	streaming: z.boolean(),
 	answeredByModel: z.string().optional(),

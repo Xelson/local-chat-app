@@ -12,6 +12,7 @@ export type ChatModel = {
 	pinned: Computed<boolean | undefined> & { update: Action<[pinned: boolean], unknown> };
 	lastMessage: Computed<ChatMessageModel | null | undefined>;
 	messages: Computed<ChatMessageModel[]>;
+	completionRunning: Computed<boolean>;
 	branches: Computed<ChatBranchesModel | null | undefined>;
 	currentModelId: Computed<string | undefined>;
 	loaded: Computed<ChatLoaded | undefined>;
@@ -31,7 +32,7 @@ export const reatomChat = (
 
 	const pinned = computed(() => loaded()?.pinned, `${name}.pinned`).actions({
 		update: (pinned: boolean) => loaded()?.applyDiff({ pinned }),
-	}); ;
+	});
 
 	const currentModelId = computed(() => loaded()?.currentModelId, `${name}.currentModelId`);
 
@@ -69,6 +70,11 @@ export const reatomChat = (
 		return models.reverse();
 	}, `${name}.messages`);
 
+	const completionRunning = computed(() => {
+		const messagesList = messages();
+		return messagesList.some(message => !!message.streaming());
+	}, `${name}.completionRunning`);
+
 	return {
 		id,
 		name: nameAtom,
@@ -76,6 +82,7 @@ export const reatomChat = (
 		currentModelId,
 		lastMessage,
 		messages,
+		completionRunning,
 		branches,
 		loaded,
 	};

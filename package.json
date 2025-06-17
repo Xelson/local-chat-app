@@ -17,9 +17,11 @@
   },
   "dependencies": {
     "@ark-ui/react": "^5.13.0",
+    "@openrouter/ai-sdk-provider": "^0.7.2",
     "@reatom/core": "1000.0.0-alpha.32",
     "@reatom/react": "1000.0.0-alpha.32",
     "@shikijs/markdown-it": "^3.6.0",
+    "ai": "^4.3.16",
     "dayjs": "^1.11.13",
     "jazz-browser": "^0.14.24",
     "jazz-tools": "^0.14.23",
