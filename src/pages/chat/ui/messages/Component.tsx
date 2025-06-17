@@ -87,7 +87,7 @@ const DraftMessage = reatomComponent(() => {
 			role='user'
 			opacity='0.5'
 		>
-			<ContentRenderer model={content.value} />
+			<ContentRenderer id='0' model={content.value} />
 		</MessageBubble>
 	);
 });

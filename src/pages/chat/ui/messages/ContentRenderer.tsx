@@ -109,9 +109,15 @@ export const ContentRenderer = reatomComponent(({ id, model }: { id: string; mod
 					{rawText ?? '? '.repeat(stableRandomByString(id, 8, 60))}
 				</styled.span>
 
+				<styled.div
+					position='absolute'
+					inset='0'
+					bg='colorPalette.4'
+				/>
+
 				<Skeleton
 					loading
-					bg='colorPalette.6'
+					bg='colorPalette.8'
 					position='absolute'
 					inset='0'
 					borderRadius='none'

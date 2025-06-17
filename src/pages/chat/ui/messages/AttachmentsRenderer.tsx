@@ -69,6 +69,7 @@ function AttachmentPreview({ stream }: { stream: FileStream }) {
 				<styled.img
 					size='4.5rem'
 					borderRadius='l1'
+					objectFit='cover'
 					src={url}
 				/>
 			) : (

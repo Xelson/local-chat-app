@@ -22,6 +22,7 @@ export const AuthOverlay = reatomComponent(() => {
 			flexDir='column'
 			position='fixed'
 			inset='0'
+			zIndex='modal'
 			backdropFilter='blur(1rem)'
 			backgroundColor='white/5'
 			_closed={{ animation: 'fade-out' }}
