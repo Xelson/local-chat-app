@@ -12,10 +12,6 @@ import { ContentRenderer } from './ContentRenderer';
 import { MessagesViewport } from './Viewport';
 
 export const MessagesStream = reatomComponent(() => {
-	const model = editorFormVariable.get();
-	const { content } = model.fields;
-	const typing = memo(() => content.value().length > 0 && !model.submit.pending());
-
 	const messagesGroup = memo(() => {
 		if (!sidebarChatRoute.exact())
 			return undefined;
@@ -28,7 +24,7 @@ export const MessagesStream = reatomComponent(() => {
 		const map = new Map<string, ChatMessageModel[]>();
 
 		messages.forEach((model) => {
-			const date = model.createdAt()?.toLocaleDateString() ?? '';
+			const date = model.createdAt()?.toDateString() ?? '';
 			const messageModels = map.get(date) ?? [];
 			messageModels.push(model);
 			map.set(date, messageModels);
@@ -55,9 +51,9 @@ export const MessagesStream = reatomComponent(() => {
 						backgroundColor='black.a1'
 						backdropFilter='blur(0.3rem)'
 						pointerEvents='none'
-						zIndex='banner'
+						zIndex='1'
 					>
-						{dayJs().calendar(date, {
+						{dayJs(new Date(date)).calendar(null, {
 							sameDay: '[Today], DD.MM.YYYY',
 							lastDay: '[Yesterday], DD.MM.YYYY',
 							sameElse: 'DD.MM.YYYY',
@@ -72,14 +68,26 @@ export const MessagesStream = reatomComponent(() => {
 					))}
 				</VStack>
 			))}
-			{typing && (
-				<MessageBubble
-					role='user'
-					opacity='0.5'
-				>
-					<ContentRenderer model={content.value} />
-				</MessageBubble>
-			)}
+
+			<DraftMessage />
 		</MessagesViewport>
+	);
+});
+
+const DraftMessage = reatomComponent(() => {
+	const model = editorFormVariable.get();
+	const { content } = model.fields;
+
+	const typing = memo(() => content.value().length > 0 && !model.submit.pending());
+	if (!typing)
+		return null;
+
+	return (
+		<MessageBubble
+			role='user'
+			opacity='0.5'
+		>
+			<ContentRenderer model={content.value} />
+		</MessageBubble>
 	);
 });

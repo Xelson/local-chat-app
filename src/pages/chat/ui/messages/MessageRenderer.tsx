@@ -7,8 +7,9 @@ import { MessageBubble } from './MessageBubble';
 import { ContentRenderer } from './ContentRenderer';
 import { AttachmentsRenderer } from './AttachmentsRenderer';
 import { MessageActionsPanel } from './MessageActionsPanel';
+import { memo as reactMemo } from 'react';
 
-export const MessageRenderer = reatomComponent(({ model }: { model: ChatMessageModel }) => {
+export const MessageRenderer = reactMemo(reatomComponent(({ model }: { model: ChatMessageModel }) => {
 	const textModel = model.content()?.text;
 	const role = model.role();
 	const createdAt = model.createdAt();
@@ -29,8 +30,8 @@ export const MessageRenderer = reatomComponent(({ model }: { model: ChatMessageM
 					flexDir='row'
 					alignItems='end'
 				>
-					<VStack alignItems='start' gap='inherit' w='full'>
-						{textModel && <ContentRenderer model={textModel} />}
+					<VStack alignItems='start' gap='inherit' flexGrow='1' minW='0' maxW='full'>
+						{textModel && <ContentRenderer id={model.id} model={textModel} />}
 
 						<AttachmentsRenderer model={model} />
 					</VStack>
@@ -40,6 +41,7 @@ export const MessageRenderer = reatomComponent(({ model }: { model: ChatMessageM
 						textStyle='xs'
 						textAlign='end'
 						title={createdAt?.toLocaleString()}
+						flexShrink='0'
 					>
 						{createdAt && dayJs(createdAt).format('HH:mm')}
 					</Text>
@@ -49,4 +51,4 @@ export const MessageRenderer = reatomComponent(({ model }: { model: ChatMessageM
 			<MessageActionsPanel model={model} />
 		</VStack>
 	);
-});
+}));

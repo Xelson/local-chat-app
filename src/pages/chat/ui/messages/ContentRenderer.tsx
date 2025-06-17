@@ -1,7 +1,7 @@
 import { reatomComponent } from '@reatom/react';
 import { useMemo } from 'react';
 import { styled } from 'styled-system/jsx';
-import { Skeleton, Spinner } from '~/shared/ui/kit/components';
+import { Skeleton } from '~/shared/ui/kit/components';
 import { type ContentRendererInputAtom, type ContentRendererModel, reatomContentRenderer } from '../../model/content-renderer';
 import { css } from 'styled-system/css';
 
@@ -93,13 +93,20 @@ const useCachedContentRenderer = (input: ContentRendererInputAtom) => {
 	}, [input]);
 };
 
-export const ContentRenderer = reatomComponent(({ model }: { model: ContentRendererInputAtom }) => {
+const stableRandomByString = (input: string, from = 0, to = 1) =>
+	from + (input.split('').map(c => c.charCodeAt(0)).reduce((acc, val) => acc + val, 0)) % to;
+
+export const ContentRenderer = reatomComponent(({ id, model }: { id: string; model: ContentRendererInputAtom }) => {
 	const renderer = useCachedContentRenderer(model);
 	const html = renderer();
 
 	if (!html) {
 		const rawText = model()?.toString();
-		return rawText ? <Skeleton loading>{rawText}</Skeleton> : <Spinner size='sm' my='auto' />;
+		return (
+			<Skeleton loading bg='transparent' maxW='full'>
+				{rawText || '? '.repeat(stableRandomByString(id, 8, 300))}
+			</Skeleton>
+		);
 	}
 
 	return (

@@ -28,6 +28,7 @@ export const InputPanel = reatomComponent(() => {
 			<InputPanelAttachmentsFileUpload asChild>
 				<VStack
 					position='absolute'
+					zIndex='1'
 					left='-1rem'
 					right='-1rem'
 					width='calc(100% + 2rem)'

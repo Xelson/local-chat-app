@@ -19,12 +19,22 @@ export type ChatModel = {
 	lastScrollPosition: number;
 };
 
+type InfiniteLoad = {
+	content: true;
+	prev: InfiniteLoad;
+};
+
+const infiniteLoad: InfiniteLoad = {
+	content: true,
+	get prev() { return infiniteLoad; },
+};
+
 export const reatomChat = (
 	id: string,
 	{ loadAs, name }: { loadAs: Account | AnonymousJazzAgent; name: string },
 ): ChatModel => {
 	const loaded = atom<ChatLoaded | undefined>(undefined, `${name}.loaded`).extend(
-		withConnectHook(target => Chat.subscribe(id, { loadAs, resolve: { lastMessage: true } }, target.set)),
+		withConnectHook(target => Chat.subscribe(id, { loadAs, resolve: { lastMessage: infiniteLoad } }, target.set)),
 	);
 
 	const nameAtom = computed(() => loaded()?.name, `${name}.role`).actions({
@@ -67,6 +77,8 @@ export const reatomChat = (
 		) {
 			models.push(getCachedMessage(loadedLast.id));
 		}
+
+		console.log('DEBUG', { id, modelsLength: models.length });
 
 		return models.reverse();
 	}, `${name}.messages`);
