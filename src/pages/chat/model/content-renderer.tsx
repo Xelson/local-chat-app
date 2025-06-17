@@ -32,10 +32,10 @@ md.use(
 	}),
 );
 
-export type ContentRenderer = ReturnType<typeof reatomContentRenderer>;
-export type ContentRendererInput = AtomLike<CoPlainText | string | undefined>;
+export type ContentRendererModel = ReturnType<typeof reatomContentRenderer>;
+export type ContentRendererInputAtom = AtomLike<CoPlainText | string | undefined>;
 
-export const reatomContentRenderer = (input: ContentRendererInput, name: string) => {
+export const reatomContentRenderer = (input: ContentRendererInputAtom, name: string) => {
 	// Here domain code contains logic that should be in withAbort('first-in-win') for simple throttling implementation.
 	// But this version of reatom is in alpha, so we're waiting for implementation
 	const trailing = atom(false, `${name}.trailing`);

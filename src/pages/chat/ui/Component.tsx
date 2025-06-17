@@ -4,8 +4,8 @@ import { top } from '@reatom/core';
 import { editorFormVariable, reatomEditorForm } from '../model/editor-form';
 import { reatomContext, reatomFactoryComponent } from '@reatom/react';
 import { Group } from 'jazz-tools';
-import { MessagesStream } from './MessagesStream';
-import { InputPanel } from './InputPanel';
+import { MessagesStream } from './messages/Component';
+import { InputPanel } from './input-panel/Component';
 
 export const Component = reatomFactoryComponent(() => {
 	// Here we initialize a reactive model bound to this component's lifecycle. This callback executes only once,
