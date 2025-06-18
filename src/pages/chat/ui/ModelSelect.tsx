@@ -46,7 +46,7 @@ export const ModelSelect = reatomFactoryComponent(() => {
 				w='full'
 				maxWidth='22rem'
 			>
-				<Skeleton loading={!collection.size} asChild>
+				<Skeleton loading={!results} asChild>
 					<Select.Control>
 						<Select.Trigger w='full'>
 							<Select.ValueText placeholder='Select a model' truncate />

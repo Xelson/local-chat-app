@@ -10,10 +10,10 @@
     "dev": "pnpm run --stream \"/:dev.*/\"",
     "panda:dev": "panda codegen --watch",
     "vite:dev": "vite",
-    "jazz:dev": "pnpm exec jazz-run sync",
+    "jazz:dev": "pnpm exec jazz-run sync --in-memory",
     "preview": "pnpm run --stream \"/:preview.*/\"",
     "vite:preview": "vite preview",
-    "jazz:preview": "pnpm exec jazz-run sync"
+    "jazz:preview": "pnpm exec jazz-run sync --in-memory"
   },
   "dependencies": {
     "@ark-ui/react": "^5.13.0",

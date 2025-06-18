@@ -102,14 +102,15 @@ const InputPanelConentInput = reatomComponent(() => {
 				ref={finalRef}
 				onChange={(e) => {
 					latestSelectionStartRef.current = e.target.selectionStart;
-					console.log({ selectionStart: e.target.selectionStart });
 				}}
-				onKeyDown={(e) => {
+				onKeyDown={wrap((e) => {
 					if (e.key === 'Enter' && !e.shiftKey) {
 						e.preventDefault();
-						model.submit();
+
+						if (!model.submitDisabled())
+							model.submit();
 					}
-				}}
+				})}
 				onPaste={(e) => {
 					if (e.clipboardData?.files && peek(model.supportedInputModalities.files))
 						uploader.setFiles([...uploader.acceptedFiles, ...Array.from(e.clipboardData.files)]);

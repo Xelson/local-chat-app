@@ -32,6 +32,9 @@ importers:
       jazz-browser:
         specifier: ^0.14.24
         version: 0.14.24
+      jazz-run:
+        specifier: ^0.14.23
+        version: 0.14.23(@effect/platform@0.62.5(@effect/schema@0.71.4(effect@3.16.5))(effect@3.16.5))
       jazz-tools:
         specifier: ^0.14.23
         version: 0.14.24
@@ -90,9 +93,6 @@ importers:
       globals:
         specifier: ^16.0.0
         version: 16.2.0
-      jazz-run:
-        specifier: ^0.14.23
-        version: 0.14.23(@effect/platform@0.62.5(@effect/schema@0.71.4(effect@3.16.5))(effect@3.16.5))
       typescript:
         specifier: ~5.8.3
         version: 5.8.3
