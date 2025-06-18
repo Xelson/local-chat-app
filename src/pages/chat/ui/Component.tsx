@@ -25,11 +25,7 @@ export const Component = reatomFactoryComponent(() => {
 	return () => (
 		<reatomContext.Provider value={frame}>
 			<HStack size='full' gap='1rem'>
-				<Sidebar
-					onShouldFocusChatInput={() => {
-						model.fields.content.elementRef()?.focus();
-					}}
-				/>
+				<Sidebar />
 
 				<Center
 					size='full'

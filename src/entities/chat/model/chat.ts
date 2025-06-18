@@ -1,8 +1,8 @@
-import { atom, withConnectHook, computed, type Computed, reatomMap, type Action } from '@reatom/core';
+import { atom, withConnectHook, computed, type Computed, type Action } from '@reatom/core';
 import type { Account, AnonymousJazzAgent, co } from 'jazz-tools';
-import { reatomChatBranchesList, type ChatBranchesModel } from './chat-branch';
 import { reatomChatMessage, type ChatMessageModel } from './chat-message';
 import { Chat, ChatsList } from './schema';
+import { chatListsCache, chatsCache, messagesCache } from './cache';
 
 type ChatLoaded = co.loaded<typeof Chat>;
 
@@ -10,31 +10,47 @@ export type ChatModel = {
 	id: string;
 	name: Computed<string | undefined> & { update: Action<[name: string], unknown> };
 	pinned: Computed<boolean | undefined> & { update: Action<[pinned: boolean], unknown> };
+	branch: Computed<boolean | undefined>;
 	lastMessage: Computed<ChatMessageModel | null | undefined>;
 	messages: Computed<ChatMessageModel[]>;
 	completionRunning: Computed<boolean>;
-	branches: Computed<ChatBranchesModel | null | undefined>;
+	branches: Computed<ChatsListModel | null | undefined>;
 	currentModelId: Computed<string | undefined>;
 	loaded: Computed<ChatLoaded | undefined>;
 	lastScrollPosition: number;
 };
 
-type InfiniteLoad = {
+type LastMessageDeepLoad = {
 	content: true;
-	prev: InfiniteLoad;
+	prev: LastMessageDeepLoad;
 };
 
-const infiniteLoad: InfiniteLoad = {
+const lastMessageDeepLoad: LastMessageDeepLoad = {
 	content: true,
-	get prev() { return infiniteLoad; },
+	get prev() { return lastMessageDeepLoad; },
+};
+
+const branchesDeepLoad = {
+	$each: {
+		lastMessage: lastMessageDeepLoad,
+		get branches() { return branchesDeepLoad; },
+	},
 };
 
 export const reatomChat = (
 	id: string,
-	{ loadAs, name }: { loadAs: Account | AnonymousJazzAgent; name: string },
+	{ loadAs, name }: {
+		loadAs: Account | AnonymousJazzAgent;
+		name: string;
+	},
 ): ChatModel => {
 	const loaded = atom<ChatLoaded | undefined>(undefined, `${name}.loaded`).extend(
-		withConnectHook(target => Chat.subscribe(id, { loadAs, resolve: { lastMessage: infiniteLoad } }, target.set)),
+		withConnectHook(target => (
+			Chat.subscribe(id, {
+				loadAs,
+				resolve: { lastMessage: lastMessageDeepLoad },
+			}, target.set)
+		)),
 	);
 
 	const nameAtom = computed(() => loaded()?.name, `${name}.role`).actions({
@@ -45,26 +61,19 @@ export const reatomChat = (
 		update: (pinned: boolean) => loaded()?.applyDiff({ pinned }),
 	});
 
+	const branch = computed(() => loaded()?.branch, `${name}.branch`);
 	const currentModelId = computed(() => loaded()?.currentModelId, `${name}.currentModelId`);
 
-	const branchesCache = reatomMap<string, ChatBranchesModel>(undefined, `${name}._branchesCache`);
-	const getCachedBranch = (id: string) => (
-		branchesCache.getOrCreate(id, () => reatomChatBranchesList(id, { loadAs, name: `${name}.branches.${id}` }))
-	);
+	const getCachedBranches = (id: string) =>
+		chatListsCache.getOrCreate(id, () => reatomChatsList(id, { name: `${name}.branch.${id}`, loadAs }));
 
 	const branches = computed(() => {
 		const loadedBranches = loaded()?._refs.branches?.value;
-		return loadedBranches ? getCachedBranch(loadedBranches.id) : loadedBranches;
+		return loadedBranches ? getCachedBranches(loadedBranches.id) : loadedBranches;
 	}, `${name}.branches`);
 
-	const messagesCache = reatomMap<string, ChatMessageModel>(undefined, `${name}._messagesCache`);
-	const getCachedMessage = (id: string) => (
-		messagesCache.getOrCreate(id, () => reatomChatMessage(id, {
-			name: `${name}.messages.${id}`,
-			getCache: getCachedMessage,
-			loadAs,
-		}))
-	);
+	const getCachedMessage = (id: string) =>
+		messagesCache.getOrCreate(id, () => reatomChatMessage(id, { name: `${name}.messages.${id}`, loadAs }));
 
 	const lastMessage = computed(() => {
 		const loadedLast = loaded()?._refs.lastMessage?.value;
@@ -96,6 +105,7 @@ export const reatomChat = (
 		id,
 		name: nameAtom,
 		pinned,
+		branch,
 		currentModelId,
 		lastMessage,
 		messages,
@@ -116,16 +126,17 @@ export type ChatsListModel = {
 
 export const reatomChatsList = (
 	id: string,
-	{ loadAs, name }: { loadAs: Account | AnonymousJazzAgent; name: string },
+	{ loadAs, name }: {
+		loadAs: Account | AnonymousJazzAgent;
+		name: string;
+	},
 ): ChatsListModel => {
 	const loaded = atom<ChatsLoaded | undefined>(undefined, `${name}.loaded`).extend(
-		withConnectHook(target => ChatsList.subscribe(id, { loadAs }, target.set)),
+		withConnectHook(target => ChatsList.subscribe(id, { loadAs, resolve: branchesDeepLoad }, target.set)),
 	);
 
-	const chatsCache = reatomMap<string, ChatModel>(undefined, `${name}._chatsCache`);
-	const getCachedChat = (id: string) => (
-		chatsCache.getOrCreate(id, () => reatomChat(id, { loadAs, name: `${name}.item.${id}` }))
-	);
+	const getCachedChat = (id: string) =>
+		chatsCache.getOrCreate(id, () => reatomChat(id, { name: `${name}.item.${id}`, loadAs }));
 
 	const items = computed(() => {
 		const refs = loaded()?._refs;

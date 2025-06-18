@@ -1,18 +1,14 @@
 import { reatomComponent } from '@reatom/react';
 import { Divider, VStack } from 'styled-system/jsx';
-import { sidebarChatRoute, sidebarRoute } from '../model/route';
+import { sidebarRoute } from '../model/route';
 import { Button, Heading, Text } from '~/shared/ui/kit/components';
 import { PlusIcon } from 'lucide-react';
 import { BrandLogo } from '~/entities/branding';
 import { type ChatModel } from '~/entities/chat';
 import { ChatItem } from './ChatItem';
-import { wrap } from '@reatom/core';
+import { deleteChat } from '../model/delete-chat';
 
-interface ComponentProps {
-	onShouldFocusChatInput?: () => void;
-}
-
-export const Component = reatomComponent(({ onShouldFocusChatInput }: ComponentProps) => {
+export const Component = reatomComponent(() => {
 	const loaderData = sidebarRoute.loader.data();
 	const loadedChatItems = loaderData?.chatsList.items();
 
@@ -28,20 +24,11 @@ export const Component = reatomComponent(({ onShouldFocusChatInput }: ComponentP
 		}
 	});
 
-	const deleteChat = wrap((id: string) => {
-		const co = loaderData?.chatsList?.loaded();
-		if (!co)
-			return;
-
-		const chatIndex = co.findIndex(item => item?.id === id);
-		if (chatIndex !== -1)
-			co.splice(chatIndex, 1);
-
-		if (sidebarChatRoute()?.chatId === id) {
-			sidebarRoute.go();
-			onShouldFocusChatInput?.();
-		}
-	});
+	const handleDeleteChat = (id: string) => {
+		const list = loaderData?.chatsList;
+		if (list)
+			deleteChat(list, id);
+	};
 
 	return (
 		<VStack
@@ -66,7 +53,6 @@ export const Component = reatomComponent(({ onShouldFocusChatInput }: ComponentP
 				colorPalette='purple'
 				width='full'
 				borderRadius='l2'
-				onClick={onShouldFocusChatInput}
 				asChild
 			>
 				<a href='/'>
@@ -94,7 +80,7 @@ export const Component = reatomComponent(({ onShouldFocusChatInput }: ComponentP
 							<ChatItem
 								key={model.id}
 								model={model}
-								onRequestDelete={() => deleteChat(model.id)}
+								onRequestDelete={() => handleDeleteChat(model.id)}
 							/>
 						))}
 						{chats.length > 0 && <Divider />}
@@ -106,7 +92,7 @@ export const Component = reatomComponent(({ onShouldFocusChatInput }: ComponentP
 						<ChatItem
 							key={model?.id ?? index}
 							model={model}
-							onRequestDelete={() => model?.id && deleteChat(model.id)}
+							onRequestDelete={() => model?.id && handleDeleteChat(model.id)}
 						/>
 					))
 				) : (

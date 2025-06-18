@@ -18,7 +18,7 @@ import {
 import type { Account, Group } from 'jazz-tools';
 import { co, CoPlainText } from 'jazz-tools';
 import { account } from '~/entities/account';
-import { Chat, ChatBranchesList, ChatMessage, reatomChat } from '~/entities/chat';
+import { Chat, ChatMessage, ChatsList, reatomChat } from '~/entities/chat';
 import { modelsListQuery } from '~/entities/llm';
 import { invariant } from '~/shared/lib/asserts';
 import { sidebarChatRoute } from '~/widgets/nav-sidebar';
@@ -56,9 +56,10 @@ export const reatomEditorForm = (owner: Account | Group, name: string) => {
 
 				const chat = Chat.create({
 					name: content.slice(0, 64),
-					branches: ChatBranchesList.create([], { owner }),
+					branches: ChatsList.create([], { owner }),
 					lastMessage: message,
 					pinned: false,
+					branch: false,
 					currentModelId: modelId,
 				});
 

@@ -13,19 +13,10 @@ export const ChatMessage = co.map({
 export const Chat = co.map({
 	name: z.string(),
 	pinned: z.boolean(),
+	branch: z.boolean(),
 	lastMessage: ChatMessage,
 	currentModelId: z.string(),
-	get branches() { return ChatBranchesList; },
+	get branches(): CoListSchema<typeof Chat> { return ChatsList; },
 });
-
-export const ChatBranch = co.map({
-	name: z.string(),
-	lastMessage: ChatMessage,
-	get branches(): CoListSchema<typeof ChatBranch> {
-		return ChatBranchesList;
-	},
-});
-
-export const ChatBranchesList = co.list(ChatBranch);
 
 export const ChatsList = co.list(Chat);

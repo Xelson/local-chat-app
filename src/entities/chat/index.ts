@@ -1,4 +1,8 @@
-export { Chat, ChatBranch, ChatMessage, ChatsList, ChatBranchesList } from './model/schema';
+export {
+	Chat,
+	ChatMessage,
+	ChatsList,
+} from './model/schema';
 
 export {
 	type ChatModel,
@@ -6,13 +10,6 @@ export {
 	type ChatsListModel,
 	reatomChatsList,
 } from './model/chat';
-
-export {
-	type ChatBranchModel,
-	reatomChatBranch,
-	type ChatBranchesModel,
-	reatomChatBranchesList,
-} from './model/chat-branch';
 
 export {
 	type ChatMessageModel,

@@ -2,6 +2,7 @@ import { co, FileStream, type Account, type AnonymousJazzAgent, type ResolveQuer
 import { ChatMessage } from './schema';
 import { atom, computed, withConnectHook, type Computed, reatomMap, withAsyncData, wrap } from '@reatom/core';
 import { reatomPlainText, type PlainTextModel } from './jazz-primitives';
+import { messagesCache } from './cache';
 
 const resolve: ResolveQuery<typeof ChatMessage> = { content: true };
 type Loaded = co.loaded<typeof ChatMessage, typeof resolve>;
@@ -21,12 +22,7 @@ export type ChatMessageModel = {
 
 export const reatomChatMessage = (
 	id: string,
-	{
-		loadAs,
-		name,
-		getCache: getCachedMessage,
-	}: {
-		getCache: (id: string) => ChatMessageModel;
+	{ loadAs, name }: {
 		loadAs: Account | AnonymousJazzAgent;
 		name: string;
 	},
@@ -38,6 +34,9 @@ export const reatomChatMessage = (
 	const role = computed(() => loaded()?.role, `${name}.role`);
 	const streaming = computed(() => loaded()?.streaming, `${name}.streaming`);
 	const answeredByModel = computed(() => loaded()?.answeredByModel, `${name}.answeredByModel`);
+
+	const getCachedMessage = (id: string) =>
+		messagesCache.getOrCreate(id, () => reatomChatMessage(id, { name: `${name}.messages.${id}`, loadAs }));
 
 	const prev = computed(() => {
 		const loadedPrev = loaded()?._refs.prev?.value;

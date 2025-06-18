@@ -1,12 +1,13 @@
 import { reatomComponent } from '@reatom/react';
 import { HStack } from 'styled-system/jsx';
-import type { ChatMessageModel, ChatModel } from '~/entities/chat';
+import { Chat, ChatsList, type ChatMessageModel, type ChatModel } from '~/entities/chat';
 import { IconButton, Tooltip } from '~/shared/ui/kit/components';
-import { CheckIcon, CopyIcon, GitMergeIcon, RefreshCcwIcon, Trash2Icon } from 'lucide-react';
+import { CheckIcon, CopyIcon, GitMergeIcon, Trash2Icon } from 'lucide-react';
 import { Clipboard } from '@ark-ui/react';
 import { css } from 'styled-system/css';
-import { wrap } from '@reatom/core';
+import { memo, wrap } from '@reatom/core';
 import { invariant } from '~/shared/lib/asserts';
+import { sidebarChatRoute } from '~/widgets/nav-sidebar';
 
 interface MessageActionsPanelProps {
 	chat: ChatModel;
@@ -14,24 +15,47 @@ interface MessageActionsPanelProps {
 }
 
 export const MessageActionsPanel = reatomComponent(({ chat, message }: MessageActionsPanelProps) => {
-	const prevMessageCo = message.prev()?.loaded();
+	const firstMessage = memo(() => !message.prev()?.loaded());
+	const assistantMessage = memo(() => message.loaded()?.role === 'assistant');
 
 	const deleteMessage = wrap(() => {
 		const currentCo = message.loaded();
 		const chatCo = chat.loaded();
+		const prevCo = message.prev()?.loaded();
 
 		invariant(currentCo, 'CO of current message is not available');
 		invariant(chatCo, 'CO of chat is not available');
 		invariant(chatCo.lastMessage, 'CO of chat last message is not available');
-		invariant(prevMessageCo, 'CO of previous message is not available');
+		invariant(prevCo, 'CO of previous message is not available');
 
 		const nextCo = message.next()?.loaded();
 
 		if (currentCo.id === chatCo.lastMessage.id)
-			chatCo.lastMessage = prevMessageCo;
+			chatCo.lastMessage = prevCo;
 
 		if (nextCo)
-			nextCo.prev = prevMessageCo;
+			nextCo.prev = prevCo;
+	});
+
+	const branchOff = wrap(() => {
+		const chatCo = chat.loaded();
+		const currentCo = message.loaded();
+
+		invariant(currentCo, 'CO of current message is not available');
+		invariant(chatCo, 'CO of chat is not available');
+
+		const branch = Chat.create({
+			name: chatCo.name,
+			branches: ChatsList.create([], { owner: chatCo._owner }),
+			lastMessage: currentCo,
+			pinned: false,
+			branch: true,
+			currentModelId: chatCo.currentModelId,
+		});
+
+		chatCo.branches?.push(branch);
+
+		sidebarChatRoute.go({ chatId: branch.id });
 	});
 
 	return (
@@ -41,11 +65,18 @@ export const MessageActionsPanel = reatomComponent(({ chat, message }: MessageAc
 			opacity='0'
 			_groupHover={{ opacity: '1' }}
 		>
-			<Tooltip.Composed label='Branch off'>
-				<IconButton variant='ghost' size='xs' color='gray.11'>
-					<GitMergeIcon />
-				</IconButton>
-			</Tooltip.Composed>
+			{assistantMessage && (
+				<Tooltip.Composed label='Branch off'>
+					<IconButton
+						variant='ghost'
+						size='xs'
+						color='gray.11'
+						onClick={branchOff}
+					>
+						<GitMergeIcon />
+					</IconButton>
+				</Tooltip.Composed>
+			)}
 
 			<Clipboard.Root
 				className='group'
@@ -74,13 +105,17 @@ export const MessageActionsPanel = reatomComponent(({ chat, message }: MessageAc
 				</Tooltip.Composed>
 			</Clipboard.Root>
 
-			<Tooltip.Composed label='Retry message'>
-				<IconButton variant='ghost' size='xs' color='gray.11'>
+			{/* <Tooltip.Composed label='Retry message'>
+				<IconButton
+					variant='ghost'
+					size='xs'
+					color='gray.11'
+				>
 					<RefreshCcwIcon />
 				</IconButton>
-			</Tooltip.Composed>
+			</Tooltip.Composed> */}
 
-			{prevMessageCo && (
+			{!firstMessage && (
 				<Tooltip.Composed label='Delete message'>
 					<IconButton
 						variant='ghost'

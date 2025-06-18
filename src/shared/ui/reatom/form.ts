@@ -9,9 +9,10 @@ export function useFormField<State, Value>(model: FieldAtom<State, Value>) {
 	const value = model.value();
 	const disabled = model.disabled();
 
-	const ref = wrap(useCallback((element: HTMLInputElement | HTMLTextAreaElement | null) => {
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	const ref = useCallback(wrap((element: HTMLInputElement | HTMLTextAreaElement | null) => {
 		model.elementRef.set(element ? element : undefined);
-	}, [model]));
+	}), [model]);
 
 	const onBlur = useCallback(() => blur(), [blur]);
 	const onFocus = useCallback(() => focus(), [focus]);
