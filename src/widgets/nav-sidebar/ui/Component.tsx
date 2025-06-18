@@ -7,6 +7,7 @@ import { BrandLogo } from '~/entities/branding';
 import { type ChatModel } from '~/entities/chat';
 import { ChatItem } from './ChatItem';
 import { deleteChat } from '../model/delete-chat';
+import { SettingsDialog } from './SettingsDialog';
 
 export const Component = reatomComponent(() => {
 	const loaderData = sidebarRoute.loader.data();
@@ -101,6 +102,8 @@ export const Component = reatomComponent(() => {
 					))
 				)}
 			</VStack>
+
+			<SettingsDialog />
 		</VStack>
 	);
 });
