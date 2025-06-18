@@ -1,24 +1,35 @@
 import { VStack } from 'styled-system/jsx';
 import { FileUpload, IconButton, Progress, Text } from '~/shared/ui/kit/components';
 import { FileIcon, PaperclipIcon, PlusIcon, Trash2Icon } from 'lucide-react';
-import { memo } from '@reatom/core';
+import { addCallHook, memo } from '@reatom/core';
 import { editorFormVariable, type AttachmentModel } from '../../model/editor-form';
 import { reatomComponent } from '@reatom/react';
 import { match } from 'ts-pattern';
 import { css } from 'styled-system/css';
 import { Collapsible } from '~/shared/ui/kit/components/collapsible';
+import { useEffect, useState } from 'react';
 
 export const InputPanelAttachmentsFileUpload = reatomComponent((props: FileUpload.RootProps) => {
 	const model = editorFormVariable.get();
 	const modalities = model.supportedInputModalities();
+	const [version, setVersion] = useState(0);
 
 	const mimeType = match(modalities)
 		.when(type => type?.includes('file'), () => '')
 		.when(type => type?.includes('image'), () => 'image/*')
 		.otherwise(() => undefined);
 
+	const field = model.fields.attachments;
+
+	console.log({ version });
+
+	useEffect(() => {
+		return addCallHook(field.reset, () => setVersion(v => v + 1));
+	}, [field]);
+
 	return (
 		<FileUpload.Root
+			key={version}
 			maxFiles={20}
 			{...props}
 			accept={mimeType}

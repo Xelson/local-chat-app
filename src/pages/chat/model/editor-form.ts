@@ -106,6 +106,7 @@ export const reatomEditorForm = (owner: Account | Group, name: string) => {
 		withCallHook(() => {
 			form.fields.content.reset();
 			form.fields.attachments.clear();
+			form.fields.attachments.reset();
 		}),
 	);
 

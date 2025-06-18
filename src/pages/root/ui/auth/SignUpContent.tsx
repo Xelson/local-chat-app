@@ -113,6 +113,7 @@ const ApiKeyField = reatomComponent(() => {
 				onValueChange={setValue}
 			>
 				<TextField.Input
+					type='password'
 					placeholder='Place it here...'
 					{...getFieldProps()}
 				/>

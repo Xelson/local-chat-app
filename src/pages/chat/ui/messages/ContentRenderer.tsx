@@ -7,6 +7,7 @@ import { css } from 'styled-system/css';
 
 const proseStyle = css.raw({
 	'position': 'relative',
+	'maxWidth': 'full',
 
 	'& pre.shiki': {
 		padding: '1rem',
@@ -99,10 +100,9 @@ const stableRandomByString = (input: string, from = 0, to = 1) =>
 export const ContentRenderer = reatomComponent(({ id, model }: { id: string; model: ContentRendererInputAtom }) => {
 	const renderer = useCachedContentRenderer(model);
 	const html = renderer();
+	const rawText = model()?.toString();
 
-	if (!html) {
-		const rawText = model()?.toString();
-
+	if (!html && rawText !== '') {
 		return (
 			<styled.div>
 				<styled.span visibility='hidden'>

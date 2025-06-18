@@ -38,8 +38,9 @@ export const MessageRenderer = reactMemo(reatomComponent(({ message, children }:
 						minW='0'
 						maxW='full'
 					>
-						{textModel && <ContentRenderer id={message.id} model={textModel} />}
-
+						{textModel && (
+							<ContentRenderer id={message.id} model={textModel} />
+						)}
 						<AttachmentsRenderer model={message} />
 					</VStack>
 
