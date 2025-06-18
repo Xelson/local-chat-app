@@ -47,7 +47,7 @@ const form = reatomForm(name => ({
 	validateOnBlur: true,
 	keepErrorOnChange: false,
 	onSubmit: async ({ apiKey }) => {
-		await wrap(jazzContext.passphraseAuth.signUp());
+		await wrap(jazzContext().passphraseAuth.signUp());
 
 		const root = account()?.root;
 		if (root)

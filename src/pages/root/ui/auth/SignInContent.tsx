@@ -39,7 +39,7 @@ const form = reatomForm(name => ({
 		name: `${name}.passphrase`,
 		validate: z.string()
 			.refine(
-				words => words.trim().split(' ').every(word => jazzContext.wordsListSet.has(word)),
+				words => words.trim().split(' ').every(word => jazzContext().wordsListSet.has(word)),
 				'Invalid word in the phrase',
 			)
 			.refine(words => words.split(' ').length == 24, 'Phrase must contain 24 words'),
@@ -49,7 +49,7 @@ const form = reatomForm(name => ({
 	validateOnBlur: true,
 	keepErrorOnChange: false,
 	onSubmit: async ({ passphrase }) => {
-		await wrap(jazzContext.passphraseAuth.logIn(passphrase));
+		await wrap(jazzContext().passphraseAuth.logIn(passphrase));
 	},
 });
 

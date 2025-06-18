@@ -7,6 +7,6 @@ const resolve: ResolveQuery<typeof AppAccount> = { profile: true, root: { chats:
 
 export const account = atom<co.loaded<typeof AppAccount, typeof resolve> | undefined>(undefined, 'account').extend(
 	withConnectHook((target) => {
-		jazzContext.me.subscribe({ resolve }, target.set);
+		jazzContext().me.subscribe({ resolve }, target.set);
 	}),
 );

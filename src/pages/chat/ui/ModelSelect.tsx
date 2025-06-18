@@ -43,10 +43,12 @@ export const ModelSelect = reatomFactoryComponent(() => {
 				}}
 				lazyMount
 				unmountOnExit
+				w='full'
+				maxWidth='16rem'
 			>
-				<Skeleton loading={!collection}>
+				<Skeleton loading={!collection.size} asChild>
 					<Select.Control>
-						<Select.Trigger minWidth='12rem'>
+						<Select.Trigger w='full'>
 							<Select.ValueText placeholder='Select a model' />
 							<ChevronsUpDownIcon />
 						</Select.Trigger>

@@ -55,7 +55,7 @@ export const InputPanel = reatomComponent(() => {
 					<Divider maskImage='radial-gradient(#000 20%, #0000 70%)' />
 
 					<HStack width='full' justifyContent='space-between'>
-						<HStack gap='0.5rem'>
+						<HStack gap='0.5rem' width='full'>
 							<ModelSelect />
 
 							<InputPanelAttachmentsButton />

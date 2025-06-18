@@ -117,7 +117,7 @@ export const ContentRenderer = reatomComponent(({ id, model }: { id: string; mod
 
 				<Skeleton
 					loading
-					bg='colorPalette.8'
+					bg='colorPalette.6'
 					position='absolute'
 					inset='0'
 					borderRadius='none'

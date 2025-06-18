@@ -64,5 +64,5 @@ const createSemanticTokens = (color: ColorPalette) => {
 };
 
 const convert = (value: string): string => {
-	return value.replaceAll('.', '-').replace('{', 'var(--').replace('}', ')');
+	return value.replace('.', '-').replace('{', 'var(--').replace('}', ')');
 };
