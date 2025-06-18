@@ -50,6 +50,7 @@ export const reatomEditorForm = (owner: Account | Group, name: string) => {
 					role: 'user',
 					streaming: false,
 					prev: undefined,
+					next: undefined,
 					attachments: attachmentStreams,
 				});
 
@@ -88,8 +89,8 @@ export const reatomEditorForm = (owner: Account | Group, name: string) => {
 					attachments: attachmentStreams,
 				});
 
-				if (co)
-					co.lastMessage = message;
+				co.lastMessage.next = message;
+				co.lastMessage = message;
 
 				await co.waitForSync();
 			}

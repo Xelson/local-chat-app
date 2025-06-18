@@ -7,6 +7,7 @@ export const ChatMessage = co.map({
 	answeredByModel: z.string().optional(),
 	attachments: z.array(co.fileStream()),
 	get prev() { return ChatMessage.optional(); },
+	get next() { return ChatMessage.optional(); },
 });
 
 export const Chat = co.map({

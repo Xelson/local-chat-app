@@ -14,6 +14,7 @@ export const spinner = defineRecipe({
 		height: 'var(--size)',
 		animation: 'spin',
 		animationDuration: 'slowest',
+		flexShrink: '0',
 	},
 	defaultVariants: {
 		size: 'md',

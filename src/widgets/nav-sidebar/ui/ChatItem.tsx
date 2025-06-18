@@ -47,17 +47,21 @@ export const ChatItem = reatomComponent(({ model, onRequestDelete }: ChatItemPro
 					onValueCommit={({ value }) => model?.name.update(value)}
 					activationMode='dblclick'
 					selectOnFocus
-					className={css({ width: 'full' })}
+					className={'group ' + css({
+						position: 'relative',
+						width: 'full',
+						display: 'flex',
+						alignItems: 'center',
+					})}
 				>
 					<Skeleton loading={!model} asChild>
 						<Button
-							className='group'
 							variant='ghost'
 							width='full'
 							justifyContent='space-between'
 							data-selected={selected ? 'true' : undefined}
 							maxWidth='full'
-							paddingRight='0.3rem'
+							paddingRight='0.75rem'
 							asChild
 						>
 							<Menu.ContextTrigger asChild>
@@ -71,31 +75,33 @@ export const ChatItem = reatomComponent(({ model, onRequestDelete }: ChatItemPro
 										/>
 									</Editable.Area>
 
-									<Dialog.Trigger asChild>
-										<IconButton
-											variant='ghost'
-											color='red.9'
-											size='xs'
-											opacity='0'
-											_groupHover={{ opacity: '1' }}
-											transition='100ms opacity'
-											onClick={(e) => {
-												if (e.shiftKey) {
-													e.stopPropagation();
-													e.preventDefault();
-													onRequestDelete?.();
-												}
-											}}
-										>
-											<Trash2Icon />
-										</IconButton>
-									</Dialog.Trigger>
-
 									{model && <CompletionSpinner model={model} />}
 								</a>
 							</Menu.ContextTrigger>
 						</Button>
 					</Skeleton>
+
+					<Dialog.Trigger asChild>
+						<IconButton
+							position='absolute'
+							right='0.3rem'
+							variant='ghost'
+							color='red.9'
+							size='xs'
+							opacity='0'
+							_groupHover={{ opacity: '1' }}
+							transition='100ms opacity'
+							onClick={(e) => {
+								if (e.shiftKey) {
+									e.stopPropagation();
+									e.preventDefault();
+									onRequestDelete?.();
+								}
+							}}
+						>
+							<Trash2Icon />
+						</IconButton>
+					</Dialog.Trigger>
 
 					<Portal>
 						<Menu.Positioner>
@@ -198,8 +204,6 @@ const CompletionSpinner = reatomComponent(({ model }: { model: ChatModel }) => {
 	return (
 		<Spinner
 			size='sm'
-			position='absolute'
-			right='0.75rem'
 			opacity={running ? '1' : '0'}
 			_groupHover={{ opacity: '0' }}
 			transition='100ms opacity'

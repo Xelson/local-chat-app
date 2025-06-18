@@ -6,6 +6,9 @@ export const tooltip = defineSlotRecipe({
 	slots: tooltipAnatomy.keys(),
 	jsx: ['Tooltip.Composed'],
 	base: {
+		positioner: {
+			zIndex: 'tooltip!',
+		},
 		content: {
 			background: 'gray.a12',
 			borderRadius: 'l2',
@@ -16,7 +19,6 @@ export const tooltip = defineSlotRecipe({
 			py: '1',
 			textStyle: 'xs',
 			maxWidth: '2xs',
-			zIndex: 'tooltip',
 			backdropFilter: 'blur(1rem)',
 			_open: {
 				animation: 'fadeIn 0.25s ease-out',

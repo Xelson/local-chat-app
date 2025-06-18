@@ -14,13 +14,22 @@ export type ChatMessageModel = {
 	content: Computed<{ text: PlainTextModel } | undefined | null>;
 	attachments: Computed<(FileStream | null)[] | undefined>;
 	prev: Computed<ChatMessageModel | undefined | null>;
+	next: Computed<ChatMessageModel | undefined | null>;
 	loaded: Computed<Loaded | undefined>;
 	createdAt: Computed<Date | undefined>;
 };
 
 export const reatomChatMessage = (
 	id: string,
-	{ loadAs, name }: { loadAs: Account | AnonymousJazzAgent; name: string },
+	{
+		loadAs,
+		name,
+		getCache: getCachedMessage,
+	}: {
+		getCache: (id: string) => ChatMessageModel;
+		loadAs: Account | AnonymousJazzAgent;
+		name: string;
+	},
 ): ChatMessageModel => {
 	const loaded = atom<Loaded | undefined>(undefined, `${name}.loaded`).extend(
 		withConnectHook(target => ChatMessage.subscribe(id, { loadAs, resolve }, target.set)),
@@ -30,15 +39,15 @@ export const reatomChatMessage = (
 	const streaming = computed(() => loaded()?.streaming, `${name}.streaming`);
 	const answeredByModel = computed(() => loaded()?.answeredByModel, `${name}.answeredByModel`);
 
-	const messagesCache = reatomMap<string, ChatMessageModel>(undefined, `${name}._messagesCache`);
-	const getCachedMessage = (id: string) => (
-		messagesCache.getOrCreate(id, () => reatomChatMessage(id, { loadAs, name: `${name}.prev.${id}` }))
-	);
-
 	const prev = computed(() => {
 		const loadedPrev = loaded()?._refs.prev?.value;
 		return loadedPrev ? getCachedMessage(loadedPrev.id) : loadedPrev;
 	}, `${name}.prev`);
+
+	const next = computed(() => {
+		const loadedNext = loaded()?._refs.next?.value;
+		return loadedNext ? getCachedMessage(loadedNext.id) : loadedNext;
+	}, `${name}.next`);
 
 	const plainTextCache = reatomMap<string, PlainTextModel>(undefined, `${name}._plainTextCache`);
 	const getCachedPlainText = (id: string) => (
@@ -73,6 +82,7 @@ export const reatomChatMessage = (
 		streaming,
 		answeredByModel,
 		prev,
+		next,
 		createdAt,
 		loaded,
 	};

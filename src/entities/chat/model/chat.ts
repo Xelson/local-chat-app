@@ -57,9 +57,13 @@ export const reatomChat = (
 		return loadedBranches ? getCachedBranch(loadedBranches.id) : loadedBranches;
 	}, `${name}.branches`);
 
-	const messagesCache = reatomMap<string, ChatMessageModel>(undefined, `${name}._branchesCache`);
+	const messagesCache = reatomMap<string, ChatMessageModel>(undefined, `${name}._messagesCache`);
 	const getCachedMessage = (id: string) => (
-		messagesCache.getOrCreate(id, () => reatomChatMessage(id, { loadAs, name: `${name}.messages.${id}` }))
+		messagesCache.getOrCreate(id, () => reatomChatMessage(id, {
+			name: `${name}.messages.${id}`,
+			getCache: getCachedMessage,
+			loadAs,
+		}))
 	);
 
 	const lastMessage = computed(() => {

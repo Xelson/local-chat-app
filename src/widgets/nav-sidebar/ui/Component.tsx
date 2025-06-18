@@ -6,7 +6,7 @@ import { PlusIcon } from 'lucide-react';
 import { BrandLogo } from '~/entities/branding';
 import { type ChatModel } from '~/entities/chat';
 import { ChatItem } from './ChatItem';
-import { peek } from '@reatom/core';
+import { wrap } from '@reatom/core';
 
 interface ComponentProps {
 	onShouldFocusChatInput?: () => void;
@@ -25,6 +25,21 @@ export const Component = reatomComponent(({ onShouldFocusChatInput }: ComponentP
 				pinnedChats.push(chat);
 			else
 				chats.push(chat);
+		}
+	});
+
+	const deleteChat = wrap((id: string) => {
+		const co = loaderData?.chatsList?.loaded();
+		if (!co)
+			return;
+
+		const chatIndex = co.findIndex(item => item?.id === id);
+		if (chatIndex !== -1)
+			co.splice(chatIndex, 1);
+
+		if (sidebarChatRoute()?.chatId === id) {
+			sidebarRoute.go();
+			onShouldFocusChatInput?.();
 		}
 	});
 
@@ -76,7 +91,11 @@ export const Component = reatomComponent(({ onShouldFocusChatInput }: ComponentP
 							Pinned chats
 						</Text>
 						{pinnedChats.map(model => (
-							<ChatItem key={model.id} model={model} />
+							<ChatItem
+								key={model.id}
+								model={model}
+								onRequestDelete={() => deleteChat(model.id)}
+							/>
 						))}
 						{chats.length > 0 && <Divider />}
 					</>
@@ -87,19 +106,7 @@ export const Component = reatomComponent(({ onShouldFocusChatInput }: ComponentP
 						<ChatItem
 							key={model?.id ?? index}
 							model={model}
-							onRequestDelete={() => {
-								const co = peek(() => loaderData?.chatsList?.loaded());
-								if (co) {
-									const chatIndex = co.findIndex(item => item?.id === model?.id);
-									if (chatIndex !== -1)
-										co.splice(chatIndex, 1);
-
-									if (peek(sidebarChatRoute)?.chatId === model.id) {
-										sidebarRoute.go();
-										onShouldFocusChatInput?.();
-									}
-								}
-							}}
+							onRequestDelete={() => model?.id && deleteChat(model.id)}
 						/>
 					))
 				) : (

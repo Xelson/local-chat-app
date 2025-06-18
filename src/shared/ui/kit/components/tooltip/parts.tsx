@@ -49,7 +49,7 @@ export interface ComposedProps extends RootProps {
 
 export const Composed = ({ children, label, ...props }: ComposedProps) => (
 	<Root lazyMount unmountOnExit {...props}>
-		<Trigger>{children}</Trigger>
+		<Trigger asChild>{children}</Trigger>
 
 		<Portal>
 			<Positioner>

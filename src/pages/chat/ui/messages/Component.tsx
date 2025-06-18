@@ -10,16 +10,21 @@ import { MessageRenderer } from './MessageRenderer';
 import { MessageBubble } from './MessageBubble';
 import { ContentRenderer } from './ContentRenderer';
 import { MessagesViewport } from './Viewport';
+import { MessageActionsPanel } from './MessageActionsPanel';
 
 export const MessagesStream = reatomComponent(() => {
 	const messagesGroup = memo(() => {
 		if (!sidebarChatRoute.exact())
-			return undefined;
+			return;
 
 		const loaderData = sidebarChatRoute.loader.data();
-		const messages = loaderData?.chat?.messages();
+		const chatModel = loaderData?.chat;
+		if (!chatModel)
+			return;
+
+		const messages = chatModel.messages();
 		if (!messages)
-			return undefined;
+			return;
 
 		const map = new Map<string, ChatMessageModel[]>();
 
@@ -30,13 +35,17 @@ export const MessagesStream = reatomComponent(() => {
 			map.set(date, messageModels);
 		});
 
-		return Array.from(map);
+		return {
+			chat: chatModel,
+			messages: Array.from(map),
+		};
 	});
 
 	return (
 		<MessagesViewport>
-			{messagesGroup?.map(([date, messages]) => (
+			{messagesGroup?.messages.map(([date, messages]) => (
 				<VStack
+					key={date}
 					position='relative'
 					alignItems='start'
 					gap='inherit'
@@ -63,8 +72,13 @@ export const MessagesStream = reatomComponent(() => {
 					{messages.map(message => (
 						<MessageRenderer
 							key={message.id}
-							model={message}
-						/>
+							message={message}
+						>
+							<MessageActionsPanel
+								chat={messagesGroup.chat}
+								message={message}
+							/>
+						</MessageRenderer>
 					))}
 				</VStack>
 			))}

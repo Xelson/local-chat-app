@@ -6,13 +6,14 @@ import { Skeleton, Text } from '~/shared/ui/kit/components';
 import { MessageBubble } from './MessageBubble';
 import { ContentRenderer } from './ContentRenderer';
 import { AttachmentsRenderer } from './AttachmentsRenderer';
-import { MessageActionsPanel } from './MessageActionsPanel';
-import { memo as reactMemo } from 'react';
+import { memo as reactMemo, type PropsWithChildren } from 'react';
 
-export const MessageRenderer = reactMemo(reatomComponent(({ model }: { model: ChatMessageModel }) => {
-	const textModel = model.content()?.text;
-	const role = model.role();
-	const createdAt = model.createdAt();
+type MessageRendererProps = PropsWithChildren<{ message: ChatMessageModel }>;
+
+export const MessageRenderer = reactMemo(reatomComponent(({ message, children }: MessageRendererProps) => {
+	const textModel = message.content()?.text;
+	const role = message.role();
+	const createdAt = message.createdAt();
 
 	if (role !== 'assistant' && role !== 'user')
 		return null;
@@ -37,9 +38,9 @@ export const MessageRenderer = reactMemo(reatomComponent(({ model }: { model: Ch
 						minW='0'
 						maxW='full'
 					>
-						{textModel && <ContentRenderer id={model.id} model={textModel} />}
+						{textModel && <ContentRenderer id={message.id} model={textModel} />}
 
-						<AttachmentsRenderer model={model} />
+						<AttachmentsRenderer model={message} />
 					</VStack>
 
 					<Text
@@ -54,7 +55,7 @@ export const MessageRenderer = reactMemo(reatomComponent(({ model }: { model: Ch
 				</MessageBubble>
 			</Skeleton>
 
-			<MessageActionsPanel model={model} />
+			{children}
 		</VStack>
 	);
 }));

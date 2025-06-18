@@ -42,6 +42,7 @@ export const startCompletion = action(async (chat: ChatModel, modelId: string) =
 	});
 
 	chatCo.lastMessage = completionMessageCo;
+	lastMessageCo.next = completionMessageCo;
 
 	const openrouter = createOpenRouter({ apiKey });
 

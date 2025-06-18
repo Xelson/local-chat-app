@@ -19,10 +19,7 @@ createRoot(document.body).render(
 	<Suspense
 		fallback={(
 			<Center size='full'>
-				<BrandLogo
-					animation='spin'
-					animationDuration='60s'
-				/>
+				<BrandLogo size='8rem' />
 			</Center>
 		)}
 	>
