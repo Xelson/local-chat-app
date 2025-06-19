@@ -2,7 +2,7 @@ import { reatomComponent } from '@reatom/react';
 import { VStack } from 'styled-system/jsx';
 import type { ChatMessageModel } from '~/entities/chat';
 import { dayJs } from '~/shared/lib/date';
-import { Skeleton, Text } from '~/shared/ui/kit/components';
+import { Skeleton, Spinner, Text } from '~/shared/ui/kit/components';
 import { MessageBubble } from './MessageBubble';
 import { ContentRenderer } from './ContentRenderer';
 import { AttachmentsRenderer } from './AttachmentsRenderer';
@@ -32,15 +32,20 @@ export const MessageRenderer = reactMemo(reatomComponent(({ message, children }:
 					alignItems='end'
 				>
 					<VStack
+						alignSelf='center'
+						justifyContent='center'
 						alignItems='start'
 						gap='inherit'
 						flexGrow='1'
 						minW='0'
 						maxW='full'
 					>
-						{textModel && (
+						{message.streaming() === 'starting' ? (
+							<Spinner size='sm' />
+						) : textModel && (
 							<ContentRenderer id={message.id} model={textModel} />
 						)}
+
 						<AttachmentsRenderer model={message} />
 					</VStack>
 

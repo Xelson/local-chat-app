@@ -1,13 +1,16 @@
 import { reatomComponent } from '@reatom/react';
-import { Divider, VStack } from 'styled-system/jsx';
+import { Divider, HStack, VStack } from 'styled-system/jsx';
 import { sidebarRoute } from '../model/route';
-import { Button, Heading, Text } from '~/shared/ui/kit/components';
-import { PlusIcon } from 'lucide-react';
+import { Button, IconButton, Text } from '~/shared/ui/kit/components';
+import { PanelLeftCloseIcon, PlusIcon } from 'lucide-react';
 import { BrandLogo } from '~/entities/branding';
 import { type ChatModel } from '~/entities/chat';
 import { ChatItem } from './ChatItem';
 import { deleteChat } from '../model/delete-chat';
 import { SettingsDialog } from './SettingsDialog';
+import { reatomBoolean } from '@reatom/core';
+
+const sidebarOpen = reatomBoolean(true, 'sidebarOpen');
 
 export const Component = reatomComponent(() => {
 	const loaderData = sidebarRoute.loader.data();
@@ -31,8 +34,11 @@ export const Component = reatomComponent(() => {
 			deleteChat(list, id);
 	};
 
+	const open = sidebarOpen();
+
 	return (
 		<VStack
+			position='relative'
 			alignItems='start'
 			border='default'
 			borderColor='border.subtle'
@@ -44,10 +50,33 @@ export const Component = reatomComponent(() => {
 			gap='1rem'
 			width='14.5rem'
 			flexShrink='0'
+			marginLeft={open ? '0' : '-16rem'}
+			transition='200ms margin ease'
 		>
-			<Heading size='xl'>
+			<HStack className='group' justifyContent='space-between' width='full'>
 				<BrandLogo size='2rem' />
-			</Heading>
+
+				<IconButton
+					variant='ghost'
+					ml='auto'
+					opacity='0'
+					_groupHover={{ opacity: '1' }}
+					transition='200ms opacity'
+					onClick={sidebarOpen.setFalse}
+				>
+					<PanelLeftCloseIcon />
+				</IconButton>
+
+				<BrandLogo
+					position='absolute'
+					size='2rem'
+					right={open ? '0' : '-3.5rem'}
+					cursor='pointer'
+					opacity={open ? '0' : '1'}
+					transition='200ms all'
+					onClick={sidebarOpen.setTrue}
+				/>
+			</HStack>
 
 			<Button
 				variant='subtle'

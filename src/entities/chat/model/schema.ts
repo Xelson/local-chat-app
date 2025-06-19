@@ -3,7 +3,7 @@ import { co, z, type CoListSchema } from 'jazz-tools';
 export const ChatMessage = co.map({
 	role: z.literal(['system', 'user', 'assistant']),
 	content: co.plainText(),
-	streaming: z.boolean(),
+	streaming: z.literal(['starting', 'completing', 'done']),
 	answeredByModel: z.string().optional(),
 	attachments: z.array(co.fileStream()),
 	get prev() { return ChatMessage.optional(); },

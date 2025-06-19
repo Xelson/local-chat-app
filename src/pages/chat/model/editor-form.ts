@@ -2,8 +2,10 @@ import {
 	assign,
 	atom,
 	computed,
+	effect,
 	experimental_fieldArray,
 	named,
+	noop,
 	reatomField,
 	reatomForm,
 	reatomMap,
@@ -24,6 +26,7 @@ import { invariant } from '~/shared/lib/asserts';
 import { sidebarChatRoute } from '~/widgets/nav-sidebar';
 import type { Modality } from '../api/fetch-models';
 import { startCompletion } from './completion';
+import { sidebarRoute } from '~/widgets/nav-sidebar/model/route';
 
 export type EditorFormModel = ReturnType<typeof reatomEditorForm>;
 
@@ -48,7 +51,7 @@ export const reatomEditorForm = (owner: Account | Group, name: string) => {
 				const message = ChatMessage.create({
 					content: CoPlainText.create(content, { owner }),
 					role: 'user',
-					streaming: false,
+					streaming: 'done',
 					prev: undefined,
 					next: undefined,
 					attachments: attachmentStreams,
@@ -85,20 +88,16 @@ export const reatomEditorForm = (owner: Account | Group, name: string) => {
 				const message = ChatMessage.create({
 					content: CoPlainText.create(content, { owner }),
 					role: 'user',
-					streaming: false,
+					streaming: 'done',
 					prev: co.lastMessage,
 					attachments: attachmentStreams,
 				});
 
 				co.lastMessage.next = message;
 				co.lastMessage = message;
-
-				await co.waitForSync();
 			}
 
-			startCompletion(chatModel, modelId).catch((error) => {
-				alert(error.message);
-			});
+			startCompletion(chatModel, modelId).catch(noop);
 		},
 	});
 
@@ -137,6 +136,11 @@ export const reatomEditorForm = (owner: Account | Group, name: string) => {
 				currentChatCo.currentModelId = newValue;
 		}),
 	);
+
+	effect(() => {
+		if (sidebarRoute.exact())
+			form.fields.content.elementRef()?.focus();
+	}, `${name}.inputAutoFocusEffect`);
 
 	const fileModelsCache = reatomMap<File, AttachmentModel>(undefined, `${name}._fileModelsCache`);
 

@@ -35,7 +35,7 @@ export const InputPanel = reatomComponent(() => {
 					bottom={stickToBottom ? '0' : '50%'}
 					translate='auto'
 					translateY={stickToBottom ? '0%' : '50%'}
-					scale={stickToBottom ? '1' : '1.1'}
+					scale={{ base: '1', xl: stickToBottom ? '1' : '1.1' }}
 					alignItems='start'
 					padding='1rem'
 					border='default'

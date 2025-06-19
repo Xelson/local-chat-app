@@ -15,6 +15,7 @@ import { field } from '../components/field/recipe';
 import { menu } from '../components/menu/recipe';
 import { dialog } from '../components/dialog/recipe';
 import { popover } from '../components/popover/recipe';
+import { toast } from '../components/toaster/recipe';
 
 export const recipes = {
 	text,
@@ -37,4 +38,5 @@ export const slotRecipes = {
 	menu,
 	dialog,
 	popover,
+	toast,
 };

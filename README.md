@@ -1,54 +1,47 @@
-# React + TypeScript + Vite
+<p align="center">
+  <img src="./public/favicon.webp" />
+</p>
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Local Chat
 
-Currently, two official plugins are available:
+A [T3 Chat Cloneathon](https://cloneathon.t3.chat/) submission
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Based on a local-first approach, Local Chat provides access to hundreds of different LLMs through [OpenRouter](https://openrouter.ai/) without unnecessary intermediate servers
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## Installation
+```
+pnpm install && pnpm build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+You can also use a local jazz sync server to persist your data:
 ```
+pnpm preview
+```
+
+Or use any other external sync server by specifying its address in .env `VITE_JAZZ_SYNC_URL`
+
+## Features
+
+* Access to all LLMs from OpenRouter and offline data storage, or syncing through sync server
+* Creating chat branches, including nested ones
+* Markdown formatting and code snippets via [Shiki](https://shiki.style/)
+* Attachment support
+* Authentication via mnemonic phrases like in crypto wallets
+* Real-time draft message preview
+
+## Customizing
+
+You can minimally customize the application's styling by replacing the primary and secondary colors, as well as the degrees of rounding.
+
+```ts
+import neutral from '~/shared/ui/kit/colors/neutral';
+import purple from '~/shared/ui/kit/colors/purple';
+
+export default defineConfig({
+	// ...
+	presets: [createPreset({ accentColor: purple, grayColor: neutral, radius: 'xl' })],
+	// ...
+});
+```
+
+Refeer to the [ParkUI documentation](https://park-ui.com/docs/theme/customize) for more info

@@ -1,5 +1,7 @@
 import { connectLogger } from '@reatom/core';
-connectLogger();
+
+if (import.meta.env.DEV)
+	connectLogger();
 
 import { createRoot } from 'react-dom/client';
 import './index.css';
@@ -9,6 +11,7 @@ import { lazy, Suspense } from 'react';
 import { jazzAppInit } from '~/entities/account';
 import { Center } from 'styled-system/jsx';
 import { BrandLogo } from '~/entities/branding';
+import { ToastsStream } from '~/shared/ui/toaster';
 
 const InitializeJazz = lazy(async () => {
 	await jazzAppInit();
@@ -27,6 +30,8 @@ createRoot(document.body).render(
 			<RootLayout>
 				<ChatPage />
 			</RootLayout>
+
+			<ToastsStream />
 		</InitializeJazz>
 	</Suspense>,
 );

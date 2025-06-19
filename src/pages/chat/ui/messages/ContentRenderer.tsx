@@ -14,10 +14,14 @@ const proseStyle = css.raw({
 		borderRadius: 'l2',
 		marginY: '0.5rem',
 		maxWidth: 'full',
-		overflowX: 'auto',
 		minWidth: '3rem',
 		minHeight: '3rem',
 		position: 'relative',
+	},
+	'& pre.shiki code': {
+		display: 'inline-block',
+		maxWidth: 'full',
+		overflowX: 'auto',
 	},
 	'& img': {
 		maxWidth: '10rem',

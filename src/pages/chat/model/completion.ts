@@ -1,4 +1,4 @@
-import { action, computed, take, withAsync, wrap } from '@reatom/core';
+import { action, computed, take, withAsync, withCallHook, wrap } from '@reatom/core';
 import { CoPlainText } from 'jazz-tools';
 import { openrouterApiKey } from '~/entities/account';
 import { ChatMessage, type ChatModel } from '~/entities/chat';
@@ -8,6 +8,7 @@ import { APICallError, streamText, type CoreMessage, type UserContent } from 'ai
 import type { co } from 'jazz-tools';
 import { match } from 'ts-pattern';
 import { FileStream } from 'jazz-tools';
+import { toaster } from '~/shared/ui/toaster';
 
 const deepTake = <Return>(computer: () => Return) => take(computed(computer));
 
@@ -37,7 +38,7 @@ export const startCompletion = action(async (chat: ChatModel, modelId: string) =
 		attachments: [],
 		answeredByModel: modelId,
 		content: streamingPlainText,
-		streaming: true,
+		streaming: 'starting',
 		prev: lastMessageCo,
 	});
 
@@ -52,7 +53,7 @@ export const startCompletion = action(async (chat: ChatModel, modelId: string) =
 			messages: await wrap(Promise.all(chatMessages.map(mapChatMessageToAiFormat))),
 		});
 
-		let position = 0;
+		let text = '';
 
 		for await (const part of fullStream) {
 			if (part.type === 'error') {
@@ -60,20 +61,36 @@ export const startCompletion = action(async (chat: ChatModel, modelId: string) =
 					const body = JSON.parse(part.error.responseBody || '{}');
 					throw new Error(body.error.message);
 				}
+				else {
+					throw part.error;
+				}
 			}
 			else if (part.type === 'text-delta') {
-				streamingPlainText.insertAfter(position, part.textDelta);
-				position += part.textDelta.length;
+				text += part.textDelta;
+				streamingPlainText.applyDiff(text);
+
+				completionMessageCo.streaming = 'completing';
 			}
 		}
 
-		completionMessageCo.streaming = false;
+		completionMessageCo.streaming = 'done';
 	}
 	catch (error) {
 		chatCo.lastMessage = lastMessageCo;
 		throw error;
 	}
 }, 'startCompletion').extend(withAsync());
+
+startCompletion.onReject.extend(
+	withCallHook(({ error }) => {
+		toaster.create({
+			title: 'Completion error',
+			description: error?.message,
+		});
+
+		console.error(error);
+	}),
+);
 
 const mapChatMessageToAiFormat = async (message: co.loaded<typeof ChatMessage>) => match(message)
 	.returnType<Promise<CoreMessage>>()

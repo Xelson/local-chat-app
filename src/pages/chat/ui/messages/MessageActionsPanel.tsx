@@ -2,12 +2,13 @@ import { reatomComponent } from '@reatom/react';
 import { HStack } from 'styled-system/jsx';
 import { Chat, ChatsList, type ChatMessageModel, type ChatModel } from '~/entities/chat';
 import { IconButton, Tooltip } from '~/shared/ui/kit/components';
-import { CheckIcon, CopyIcon, GitMergeIcon, Trash2Icon } from 'lucide-react';
+import { CheckIcon, CopyIcon, GitMergeIcon, RefreshCcwIcon, Trash2Icon } from 'lucide-react';
 import { Clipboard } from '@ark-ui/react';
 import { css } from 'styled-system/css';
-import { memo, wrap } from '@reatom/core';
+import { memo, noop, wrap } from '@reatom/core';
 import { invariant } from '~/shared/lib/asserts';
 import { sidebarChatRoute } from '~/widgets/nav-sidebar';
+import { startCompletion } from '../../model/completion';
 
 interface MessageActionsPanelProps {
 	chat: ChatModel;
@@ -17,6 +18,7 @@ interface MessageActionsPanelProps {
 export const MessageActionsPanel = reatomComponent(({ chat, message }: MessageActionsPanelProps) => {
 	const firstMessage = memo(() => !message.prev()?.loaded());
 	const assistantMessage = memo(() => message.loaded()?.role === 'assistant');
+	const completionPending = startCompletion.pending() > 0;
 
 	const deleteMessage = wrap(() => {
 		const currentCo = message.loaded();
@@ -56,6 +58,19 @@ export const MessageActionsPanel = reatomComponent(({ chat, message }: MessageAc
 		chatCo.branches?.push(branch);
 
 		sidebarChatRoute.go({ chatId: branch.id });
+	});
+
+	const retryMessage = wrap(() => {
+		const chatCo = chat.loaded();
+		const currentCo = message.loaded();
+
+		invariant(currentCo, 'CO of current message is not available');
+		invariant(chatCo, 'CO of chat is not available');
+		invariant(chatCo.lastMessage, 'CO of chat last message is not available');
+
+		chatCo.lastMessage = currentCo;
+
+		startCompletion(chat, chatCo.currentModelId).catch(noop);
 	});
 
 	return (
@@ -105,15 +120,19 @@ export const MessageActionsPanel = reatomComponent(({ chat, message }: MessageAc
 				</Tooltip.Composed>
 			</Clipboard.Root>
 
-			{/* <Tooltip.Composed label='Retry message'>
-				<IconButton
-					variant='ghost'
-					size='xs'
-					color='gray.11'
-				>
-					<RefreshCcwIcon />
-				</IconButton>
-			</Tooltip.Composed> */}
+			{!assistantMessage && (
+				<Tooltip.Composed label='Retry message'>
+					<IconButton
+						variant='ghost'
+						size='xs'
+						color='gray.11'
+						onClick={retryMessage}
+						disabled={completionPending}
+					>
+						<RefreshCcwIcon />
+					</IconButton>
+				</Tooltip.Composed>
+			)}
 
 			{!firstMessage && (
 				<Tooltip.Composed label='Delete message'>

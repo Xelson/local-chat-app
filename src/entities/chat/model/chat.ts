@@ -91,14 +91,15 @@ export const reatomChat = (
 			models.push(getCachedMessage(loadedLast.id));
 		}
 
-		console.log('DEBUG', { id, modelsLength: models.length });
-
 		return models.reverse();
 	}, `${name}.messages`);
 
 	const completionRunning = computed(() => {
 		const messagesList = messages();
-		return messagesList.some(message => !!message.streaming());
+		return messagesList.some((message) => {
+			const streaming = message.streaming();
+			return streaming && streaming != 'done';
+		});
 	}, `${name}.completionRunning`);
 
 	return {

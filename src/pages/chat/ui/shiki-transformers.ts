@@ -43,6 +43,8 @@ const copyiedSvg = btoa(`
 export const transformerAddCopyButton: ShikiTransformer = ({
 	name: 'add-copy-button',
 	pre(node) {
+		this.addClassToHast(node, 'group');
+
 		node.children.push({
 			type: 'element',
 			tagName: 'button',
