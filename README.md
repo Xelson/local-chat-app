@@ -8,6 +8,8 @@ A [T3 Chat Cloneathon](https://cloneathon.t3.chat/) submission
 
 Based on a local-first approach, Local Chat provides access to hundreds of different LLMs through [OpenRouter](https://openrouter.ai/) without unnecessary intermediate servers
 
+Built with React, [Jazz](https://jazz.tools/), [Reatom](https://v1000.reatom.dev/), [Panda CSS](https://panda-css.com/) and [Park UI](https://park-ui.com/)
+
 ## Installation
 ```
 pnpm install && pnpm build
