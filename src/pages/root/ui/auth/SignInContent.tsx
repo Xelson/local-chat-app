@@ -114,7 +114,6 @@ const SubmitButton = reatomComponent(() => {
 		<Button
 			width='full'
 			size='lg'
-			onClick={close}
 			marginTop='0.5rem'
 			disabled={disabled}
 		>
